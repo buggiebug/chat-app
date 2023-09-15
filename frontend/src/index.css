@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.spin_button_none::-webkit-outer-spin-button,
+.spin_button_none::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+/* This class will work on Firefox... */
+.spin_button_none[type="number"]{
+  -moz-appearance: textfield;
+}
