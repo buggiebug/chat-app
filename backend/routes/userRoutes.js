@@ -7,6 +7,7 @@ const {
   loginUser,
   logoutUser,
   getUserDetails,
+  getAllUsers,
   uploadProfilePicture,
   forgotUserPassword,
   updateForgotPassword,
@@ -19,10 +20,13 @@ userRoute.route("/signup").post(createNewUser);
 userRoute.route("/login").post(loginUser);
 userRoute.route("/logout").get(logoutUser);
 userRoute.route("/me").get(isAuthenticatedUser, getUserDetails);
+userRoute.route("/all-users").get(isAuthenticatedUser, getAllUsers);
 userRoute
   .route("/me/profile-upload")
   .put(isAuthenticatedUser, upload, uploadProfilePicture);
 userRoute.route("/user/forgot-password").post(forgotUserPassword);
-userRoute.route("/user/forgot/update-password/:tokenId").post(updateForgotPassword);
+userRoute
+  .route("/user/forgot/update-password/:tokenId")
+  .post(updateForgotPassword);
 
 module.exports = userRoute;

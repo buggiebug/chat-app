@@ -38,6 +38,8 @@ app.get("/", (req, res) => {
 
 // Users...
 app.use("/api", require("./routes/userRoutes"));
+app.use("/api", require("./routes/chatRoutes"));
+app.use("/api", require("./routes/messageRoutes"));
 
 app.listen(PORT, () => {
   console.log(`server running at http://${HOST}:${PORT}`);

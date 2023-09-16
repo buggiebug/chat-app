@@ -2,6 +2,7 @@ const catchAsynError = require("../middleware/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const ObjHelper = require("../utils/helper");
 const MailSender = require("../utils/mailSender");
+const SearchFeature = require("../utils/searchFeature");
 const UserModel = require("../models/userModel");
 const crypto = require("crypto");
 
@@ -9,7 +10,7 @@ const crypto = require("crypto");
 exports.createNewUser = catchAsynError(async (req, res, next) => {
   const { step } = req.query;
   const { email, otp, name, password, cPassword } = req.body;
-  const {tempToken} = req.cookies;
+  const { tempToken } = req.cookies;
 
   const objHelper = new ObjHelper();
 
@@ -22,7 +23,9 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
   if (email) {
     if (!objHelper.verifyEmail(email))
       return next(new ErrorHandler("Invalid email.", 400));
-    isUser = await UserModel.findOne({ email:String(email).toLowerCase().trim() });
+    isUser = await UserModel.findOne({
+      email: String(email).toLowerCase().trim(),
+    });
   } else if (tempToken) {
     let id = await objHelper.objectId(tempToken);
     if (!objHelper.isValidMongoId(id))
@@ -39,8 +42,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
     await UserModel.findOneAndRemove({ email });
     let mailSender = new MailSender();
     try {
-      if(await mailSender.validateEmailAddress(email))
-      {
+      if (await mailSender.validateEmailAddress(email)) {
         const otp = objHelper.getOtp(4);
         await mailSender.sendOtp({
           to: String(email).toLowerCase().trim(),
@@ -55,14 +57,15 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
           email: String(email).toLowerCase().trim(),
           passwordToken,
         });
-        return res.status(200).cookie("tempToken",await user.getTempAuthToken()).json({
-          success: true,
-          message: `An OTP has send to your email: ${email}`,
-        });
-      }
-      else
-      {
-        return next(new ErrorHandler("Email not found.",400));
+        return res
+          .status(200)
+          .cookie("tempToken", await user.getTempAuthToken())
+          .json({
+            success: true,
+            message: `An OTP has send to your email: ${email}`,
+          });
+      } else {
+        return next(new ErrorHandler("Email not found.", 400));
       }
     } catch (err) {
       return next(new ErrorHandler(`${err.message}`, 400));
@@ -79,18 +82,21 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
 
     if (
       String(otp) === String(await isUser.passwordToken.token) &&
-      Date.now() < await isUser.passwordToken.date
+      Date.now() < (await isUser.passwordToken.date)
     ) {
       isUser.passwordToken = {
-        token: '',
-        date: '',
+        token: "",
+        date: "",
         tokenVerified: true,
       };
       await isUser.save({ validateModifiedOnly: true });
-      return res.status(200).cookie("tempToken",await isUser.getTempAuthToken()).json({
-        success: true,
-        message: "OTP verified.",
-      });
+      return res
+        .status(200)
+        .cookie("tempToken", await isUser.getTempAuthToken())
+        .json({
+          success: true,
+          message: "OTP verified.",
+        });
     } else return next(new ErrorHandler(`Invalid OTP or OTP is expired.`, 400));
   }
   //  Step [3]...
@@ -132,10 +138,13 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
       validateBeforeSave: true,
     });
 
-    return res.status(201).cookie("userawthtoken",await userData.getAuthToken()).json({
-      success: true,
-      message: "Welcome to GapSap 😍",
-    });
+    return res
+      .status(201)
+      .cookie("userawthtoken", await userData.getAuthToken())
+      .json({
+        success: true,
+        message: "Welcome to GapSap 😍",
+      });
   }
 
   return next(new ErrorHandler("Follow the API steps...", 400));
@@ -161,16 +170,22 @@ exports.loginUser = catchAsynError(async (req, res, next) => {
   if (await user.accountStatus)
     return next(new ErrorHandler("Your account has been blocked.", 401));
 
-  return res.status(200).cookie("userawthtoken",await user.getAuthToken()).json({
-    success: true,
-    message: "Welcome back GapSap 😍",
-  });
+  return res
+    .status(200)
+    .cookie("userawthtoken", await user.getAuthToken())
+    .json({
+      success: true,
+      message: "Welcome back GapSap 😍",
+    });
 });
 
 //  Logout user...
-exports.logoutUser = catchAsynError(async(req,res,next)=>{
-  return res.status(200).cookie("userawthtoken",null,{expires: Date.now()}).json({success:true,message:'Logged out. 🔒'})
-})
+exports.logoutUser = catchAsynError(async (req, res, next) => {
+  return res
+    .status(200)
+    .cookie("userawthtoken", null, { maxAge: Date.now() })
+    .json({ success: true, message: "Logged out. 🔒" });
+});
 
 //  Get user...
 exports.getUserDetails = catchAsynError(async (req, res, next) => {
@@ -213,9 +228,8 @@ exports.forgotUserPassword = catchAsynError(async (req, res, next) => {
   if (!user) return next(new ErrorHandler("User not found.", 400));
   if (!(await user.isVerifiedUser))
     return next(new ErrorHandler("User not found.", 400));
-  
-  if(await mailSender.validateEmailAddress(email))
-  {
+
+  if (await mailSender.validateEmailAddress(email)) {
     //  Save token in db & send token to user...
     const resetPassToken = await crypto.randomBytes(10).toString("hex");
     const passwordToken = {
@@ -225,25 +239,23 @@ exports.forgotUserPassword = catchAsynError(async (req, res, next) => {
         .digest("hex"),
       date: Date.now() + 30 * 60 * 1000,
     };
-  
+
     user.passwordToken = await passwordToken;
     await user.save({ validateBeforeSave: true, validateModifiedOnly: true });
-  
+
     const forgotUrl = `http://localhost:8000/user/forgot/update-password/${resetPassToken}`;
     await mailSender.sendForgotPasswordMail({
       email: String(email).toLowerCase().trim(),
       forgotUrl,
     });
-  
+
     return res.status(200).json({
       success: true,
       message: `Reset password link send to ${String(email).toLowerCase()}`,
     });
+  } else {
+    return next(new ErrorHandler("Email not found.", 400));
   }
-  else
-  {
-    return next(new ErrorHandler("Email not found.",400));
-  }  
 });
 
 //  Update forgot password...
@@ -283,4 +295,15 @@ exports.updateForgotPassword = catchAsynError(async (req, res, next) => {
   user.passwordToken = undefined;
   await user.save({ validateBeforeSave: true, validateModifiedOnly: true });
   return res.status(200).json({ success: true, message: "Password updated." });
+});
+
+//  Get all users...
+exports.getAllUsers = catchAsynError(async (req, res, next) => {
+  const search = req.query;
+  const searchFeature = new SearchFeature(UserModel.find()).findUsers(
+    search,
+    req.user._id
+  );
+  const allUsers = await searchFeature;
+  return res.status(200).json({ suceess: true, allUsers });
 });
