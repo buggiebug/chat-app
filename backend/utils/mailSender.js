@@ -5,7 +5,7 @@ class MailSender {
 
 
   //  Validate Email...
-  async validateEmailAddress(receiverMail)
+  async validateEmailAddress(receiverMail)  // Todo:  Activate validate method...
   {
     // let {valid} =  await validate(String(receiverMail).trim());
     // return valid;
