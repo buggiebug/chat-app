@@ -61,7 +61,7 @@ function Login(props) {
                 <InputBox type={"email"} name={"email"} label={"Email"} placeHolder={'Email'} autoComplete="email" onChange={onChange}/>
                 <InputBox type={"password"} name={"password"} label={"Password"} placeHolder={'Password'} autoComplete="password" onChange={onChange}/>
                 <div className="flex justify-end mt-3">
-                  <InputButton name={"Login"} restClass={"bg-teal-800 w-1/3 hover:bg-teal-700 text-white"} loading={loadingState}/>
+                  <InputButton name={"Login"} restClass={"bg-teal-800 w-1/3 hover:bg-teal-700 text-white"} loading={loadingState.loadingPath==="login"?loadingState.loading:false}/>
                 </div>
             </form>
 

@@ -11,6 +11,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+::-webkit-scrollbar{
+  width: 0px;
+}
+
 .spin_button_none::-webkit-outer-spin-button,
 .spin_button_none::-webkit-inner-spin-button {
   appearance: none;

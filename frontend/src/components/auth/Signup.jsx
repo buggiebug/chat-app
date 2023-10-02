@@ -143,7 +143,7 @@ function Signup(props) {
               <form onSubmit={sendOtpSubmit}>
                   <InputBox type={"email"} name={"email"} label={"Email"} placeHolder={'Email'} onChange={e=>setEmailState({email:e.target.value})} autoComplete="email" required/>
                   <div className="flex justify-end mt-3">
-                      <InputButton name={`Continue`} restClass={"bg-teal-800 w-1/3 hover:bg-teal-900 text-white"} loading={loadingState}/>
+                    <InputButton name={`Continue`} restClass={"bg-teal-800 w-1/3 hover:bg-teal-900 text-white"} loading={loadingState.loadingPath==="createAccount"?loadingState.loading:false}/>
                   </div>
               </form>
             </div>:""}
@@ -167,13 +167,12 @@ function Signup(props) {
                           value={otpState[index] || ""}
                           type="number"
                           className="w-12 h-12 border-2 border-teal-900 outline-none rounded-md focus:border-teal-700 text-center transition-all font-medium text-xl spin_button_none"/>
-
                         </div>
                       ))}
                     </div>
                   </div>
                   <div className="flex justify-center mt-5">
-                    <InputButton name={`Verify OTP`} restClass={"bg-teal-800 hover:bg-teal-700 text-white"} loading={loadingState}/>
+                    <InputButton name={`Verify OTP`} restClass={"bg-teal-800 hover:bg-teal-700 text-white"} loading={loadingState.loadingPath==="createAccount"?loadingState.loading:false}/>
                   </div>
                 </form>
             </div> : ""}
@@ -186,7 +185,7 @@ function Signup(props) {
                   <InputBox onChange={onChangeUserData} type={"password"} name={"password"} label={"Password"} placeHolder={'Password'} autoComplete="new-password" required/>
                   <InputBox onChange={onChangeUserData} type={"password"} name={"cPassword"} label={"Confirm Password"} placeHolder={'Confirm Password'} autoComplete="cNew-password" required/>
                   <div className="flex justify-end mt-3">
-                    <InputButton name={"Signup"} restClass={"bg-teal-800 w-1/3 hover:bg-teal-700 text-white"} loading={loadingState}/>
+                    <InputButton name={"Signup"} restClass={"bg-teal-800 w-1/3 hover:bg-teal-700 text-white"} loading={loadingState.loadingPath==="createAccount"?loadingState.loading:false}/>
                   </div>
               </form>
             </div>:""}

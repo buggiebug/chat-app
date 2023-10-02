@@ -5,52 +5,52 @@ import { toast } from "react-toastify";
 export const CreateUserContext = createContext();
 
 function UserContext(props) {
-  const [loadingState, setLoadingState] = useState(false);
-
+  const [loadingState, setLoadingState] = useState({loading:false,loadingPath:""});
+  const [myInfoState,setMyInfoState] = useState([]);
   
   //  Create new account...
   const createAccount = async (step, data) => {
-    setLoadingState(true);
+    setLoadingState({loading:true,loadingPath:"createAccount"});
     const res = await createNewAccount(step, data);
     // console.log(res);
     if (res.success) {
       toast.success(res.message);
-      setLoadingState(false);
+      setLoadingState({loading:false,loadingPath:""});
       return true;
     }
     toast.warn(res.message);
-    setLoadingState(false);
+    setLoadingState({loading:false,loadingPath:""});
   };
 
   //  Login User...
   const loginSubmit = async (data) => {
-    setLoadingState(true);
+    setLoadingState({loading:true,loadingPath:"login"});
     const res = await loginUser(data);
     // console.log(res);
     if (res.success) {
       toast.success(res.message);
-      setLoadingState(false);
+      setLoadingState({loading:false,loadingPath:""});
       return true;
     }
     toast.warn(res.message);
-    setLoadingState(false);
+    setLoadingState({loading:false,loadingPath:""});
   };
 
   const getUserInfo = async () => {
-    setLoadingState(true);
+    setLoadingState({loading:true,loadingPath:"myInfo"});
     const res = await getUser();
-    console.log(res);
     if (res.success) {
-      setLoadingState(false);
+      setLoadingState({loading:false,loadingPath:""});
+      setMyInfoState(res.user);
       return true;
     }
     toast.warn(res.message);
-    setLoadingState(false);
+    setLoadingState({loading:false,loadingPath:""});
   };
 
   return (
     <CreateUserContext.Provider
-      value={{ loadingState, createAccount, loginSubmit, getUserInfo }}
+      value={{ loadingState, createAccount, loginSubmit, getUserInfo,myInfoState }}
     >
       {props.children}
     </CreateUserContext.Provider>
