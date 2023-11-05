@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import { createNewAccount, loginUser, getUser } from "../api/UserApi";
+import { createNewAccount, loginUser, logOutUser , getUser, uploadProfile , searchUser } from "../api/UserApi";
 import { toast } from "react-toastify";
 
 export const CreateUserContext = createContext();
@@ -7,6 +7,7 @@ export const CreateUserContext = createContext();
 function UserContext(props) {
   const [loadingState, setLoadingState] = useState({loading:false,loadingPath:""});
   const [myInfoState,setMyInfoState] = useState([]);
+  const [allUsersState,setAllUsersState] = useState([]);
   
   //  Create new account...
   const createAccount = async (step, data) => {
@@ -36,6 +37,21 @@ function UserContext(props) {
     setLoadingState({loading:false,loadingPath:""});
   };
 
+  //  Logout user...
+  const logoutSubmit = async()=>{
+    setLoadingState({loading:true,loadingPath:"logout"});
+    const res = await logOutUser();
+    // console.log(res);
+    if (res.success) {
+      toast.success(res.message);
+      setLoadingState({loading:false,loadingPath:""});
+      return true;
+    }
+    toast.warn(res.message);
+    setLoadingState({loading:false,loadingPath:""});
+  }
+
+  //  Get user info...
   const getUserInfo = async () => {
     setLoadingState({loading:true,loadingPath:"myInfo"});
     const res = await getUser();
@@ -48,9 +64,36 @@ function UserContext(props) {
     setLoadingState({loading:false,loadingPath:""});
   };
 
+  //  Upload profile...
+  const uploadProfilePhoto = async(formData)=>{
+    setLoadingState({loading:true,loadingPath:"photoUpload"});
+    const res = await uploadProfile(formData);
+    if (res.success) {
+      setLoadingState({loading:false,loadingPath:""});
+      setMyInfoState(res.user);
+      toast.success(res.message);
+      return true;
+    }
+    toast.warn(res.message);
+    setLoadingState({loading:false,loadingPath:""});
+  }
+
+  //  Search user...
+  const searchUserByNameEmail = async(keyword)=>{
+    setLoadingState({loading:true,loadingPath:"search_user"});
+    const res = await searchUser(keyword);
+    if (res.success) {
+      setLoadingState({loading:false,loadingPath:""});
+      setAllUsersState(res.allUsers);
+      return true;
+    }
+    toast.warn(res.message);
+    setLoadingState({loading:false,loadingPath:""});
+  }
+
   return (
     <CreateUserContext.Provider
-      value={{ loadingState, createAccount, loginSubmit, getUserInfo,myInfoState }}
+      value={{ loadingState, createAccount, loginSubmit,logoutSubmit, getUserInfo, myInfoState, uploadProfilePhoto ,searchUserByNameEmail,allUsersState }}
     >
       {props.children}
     </CreateUserContext.Provider>

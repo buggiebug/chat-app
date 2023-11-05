@@ -6,7 +6,11 @@ import {HiOutlineDotsVertical} from "react-icons/hi";
 
 const ContactInfoModel = ({props}) => {
 
-  const {setContactInfoState,selectedChatState} = props;  
+  const {setContactInfoState,selectedChatState,myInfoState} = props;  
+
+  const removeUser = (id)=>{
+    console.log(id);
+  }
   
   return (
     <>
@@ -28,7 +32,7 @@ const ContactInfoModel = ({props}) => {
                     alt="logo"
                     className="w-12 md:w-16 rounded-full"
                 />
-                <p className="my-2 text-xl">{selectedChatState.isGroupChat?selectedChatState.chatName:selectedChatState.users[1].name}</p>
+                <p className="my-2 text-xl">{selectedChatState.isGroupChat?selectedChatState.chatName:myInfoState._id===selectedChatState.users[0]._id?selectedChatState.users[1].name:selectedChatState.users[0].name}</p>
             </div>
             <div className=''>
                 <hr />
@@ -44,7 +48,14 @@ const ContactInfoModel = ({props}) => {
                                         <p className="text-sm text-slate-200 truncate">{e.email}</p>
                                     </div>
                                 </div>
-                                <p className='cursor-pointer'><HiOutlineDotsVertical/></p>
+                                <div>
+                                    <p className='cursor-pointer p-1 rounded-full hover:bg-[rgba(.5,.5,.5,.1)] peer'><HiOutlineDotsVertical/></p>
+                                    <div className="absolute right-0 invisible hover:visible peer-hover:visible -mt-1 mr-5">
+                                        <div className="flex flex-col ring-1 ring-white shadow-lg rounded-sm py-1 text-sm">
+                                            <button onClick={()=>{removeUser(e._id)}} className='hover:bg-red-700 text-white'>Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
                         })}
                     </ul>

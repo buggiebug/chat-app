@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { ChatHook } from "../../hooks/ChatsHook";
 import {AiOutlineMore,AiOutlineArrowLeft} from "react-icons/ai"
 import {RiSendPlaneFill} from "react-icons/ri"
@@ -7,33 +7,63 @@ import InputBox from "../form_inputs/InputBox";
 import Messages from "./Messages";
 import logo from "../images/logo.jpg"
 import ContactInfoModel from "./ContactInfoModel";
+import { UserHook } from "../../hooks/UserHook";
 
+const ChatPage = ({soc}) => {
+  const {socketConnectedState,typingState,isTypingState,setTypingState} = soc;
 
-const ChatPage = () => {
+  const {openSelectedChat,selectedChatState,sendMessage_C,socket,notificationState} = ChatHook();
+  const {myInfoState} = UserHook();
 
-  const {openSelectedChat,selectedChatState} = ChatHook();
-  
   const [contactInfoState,setContactInfoState] = useState("hidden")
   //  Show contact info model...
   const showContactInfo = ()=>{
     setContactInfoState("visible")
   }
-
+  
   //  Clear state and navigate to chat page...
   const backToChatHistory = ()=>{
     openSelectedChat(undefined)
   }
 
-  //  Send message...
-  const [messageDataState,setMessageDataState] = useState({userId:"",message:""})
-  const changeMessage = ({target})=>{
-    setMessageDataState({...messageDataState,[target.name]:target.value});
-  }
-  const sendMessage = (e)=>{
-    e.preventDefault();
-    console.log(messageDataState);
+  //  Onchange message and typing states...
+  const [messageState,setMessageState] = useState("")
+  const onChangeMessage = ({target})=>{
+    setMessageState(target.value);
+
+    if(!socketConnectedState) return;
+    if(!typingState){
+      setTypingState(true);
+      socket.emit("typing",selectedChatState._id);
+    }
+
+    let lastTypTime = new Date().getTime();
+    let timerLen = 3000;
+    setTimeout(()=>{
+      let timeNow = new Date().getTime();
+      let timeDiffer = timeNow - lastTypTime;
+      if(timeDiffer >= timerLen && typingState)
+      {
+        socket.emit("stopTyping",selectedChatState._id);
+        setTypingState(false);
+      }
+    },timerLen);
   }
 
+  // on send message...
+  const sendMessage = async(e)=>{
+
+    console.log(notificationState)
+
+    e.preventDefault();
+    if(messageState.length>0)
+    {
+      const messageData={chatId:selectedChatState._id,message:messageState};
+      await sendMessage_C(messageData);
+    }
+    setMessageState("");
+    e.target.reset();
+  }
 
   return (
     <>
@@ -47,7 +77,10 @@ const ChatPage = () => {
                   <div className="w-full flex justify-between text-black font-semibold items-center cursor-pointer " onClick={()=>{showContactInfo()}}>
                     <div className="flex justify-center items-center">
                       <img src={logo} alt="user" className="w-8 md:w-10 rounded-full"/>
-                      <p className="ml-3">{selectedChatState.isGroupChat?selectedChatState.chatName:selectedChatState.users[1].name}</p>
+                      <div className="inline-flex flex-col justify-center items-start">
+                        <p className="ml-3">{selectedChatState.isGroupChat?selectedChatState.chatName:myInfoState._id===selectedChatState.users[0]._id?selectedChatState.users[1].name:selectedChatState.users[0].name}</p>
+                        <p className="text-xs absolute top-9 ml-3 text-green-500">{isTypingState && !typingState?'typing...':''}</p>
+                      </div>
                     </div>
                   </div>
               </div>
@@ -58,24 +91,20 @@ const ChatPage = () => {
             </div>
 
             <div className={`h-[80vh] p-3 overflow-y-scroll`}>
-                <Messages senderMessage={"Hello buggIe"} receiverMessage={""}/>
-                <Messages senderMessage={""} receiverMessage={"Hii Shubham"}/>
-                <Messages senderMessage={"How are you ?"} receiverMessage={""}/>
-                <Messages senderMessage={""} receiverMessage={"I'm fine"}/>
-                <Messages senderMessage={"What about you ?"} receiverMessage={""}/>
-                <Messages senderMessage={"How's study going."} receiverMessage={""}/>
+              <Messages/>
             </div>
             
             <div className="bg-transparent">
               <div className="sticky bottom-0 bg-transparent py-2 h-20 text-black flex justify-between items-center px-3">
                 <div className="w-full h-full overflow-hidden">
                     <div className="w-full text-black font-semibold">
+                      {/* {isTypingState && !typingState?<div>Loading..</div>:""} */}
                       <div className="w-full flex justify-between items-center">
                         <form className="w-full flex justify-between items-center" onSubmit={sendMessage}>
                           <div className="hidden">
-                            <InputBox onChange={changeMessage} label={" "} name={"userId"} placeHolder={" "} type={"hidden"}/>
+                            <InputBox onChange={onChangeMessage} label={" "} name={"userId"} placeHolder={" "} type={"hidden"}/>
                           </div>
-                          <InputBox onChange={changeMessage} label={" "} name={"message"} placeHolder={"Type a message"} type={"text"} restClass={"w-full rounded-full focus:bg-white border-none focus:border-transparent"}/>
+                          <InputBox onChange={onChangeMessage} label={" "} name={"message"} placeHolder={"Type a message"} type={"text"} restClass={"w-full rounded-full focus:bg-white border-none focus:border-transparent"}/>
                           <InputButton name={<RiSendPlaneFill/>} restClass={"mb-2 text-2xl text-white"} loading={false}/>
                         </form>
                       </div>
@@ -91,7 +120,7 @@ const ChatPage = () => {
         {/* Contact info model... */}
         {selectedChatState!==undefined?
           <div className={`${contactInfoState} md:visible md:basis-[40%]  ${contactInfoState==="visible"?"basis-[100%]":"basis-[0%]"}`}>
-            <ContactInfoModel props={{setContactInfoState,selectedChatState}}/>
+            <ContactInfoModel props={{setContactInfoState,selectedChatState,myInfoState}}/>
           </div>:""
         }
       </div>

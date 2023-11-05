@@ -22,8 +22,9 @@ export const getAllChats = async()=>{
 
 //  Create new one to one chat with user...
 export const createOneToOneChat = async(userId)=>{
+    const id = {userId:userId};
     try{
-        const response = await ax.post("/chats",userId);
+        const response = await ax.post("/chats",id);
         return await response.data;
     }catch(err){
         if(err.message)
@@ -37,6 +38,46 @@ export const createOneToOneChat = async(userId)=>{
 export const createGroupChat = async(data)=>{
     try{
         const response = await ax.post("/chats/group",data);
+        return await response.data;
+    }catch(err){
+        if(err.message)
+            return await err.response.data
+        else
+            return err;
+    }
+}
+
+//  Get all messages...
+export const OneToOneMessage = async(chatId)=>{
+    try{
+        const response = await ax.get(`/chat/message/${chatId}`);
+        return await response.data;
+    }catch(err){
+        if(err.message)
+            return await err.response.data
+        else
+            return err;
+    }
+}
+
+//  Send messages...
+export const sendMessage = async(messageData)=>{
+    try{
+        const response = await ax.post(`/chat/message/send`,messageData);
+        return await response.data;
+    }catch(err){
+        if(err.message)
+            return await err.response.data
+        else
+            return err;
+    }
+}
+
+//  Delete all chats...
+export const deleteAllChats = async(ids)=>{
+    const chats = {chatIds:ids};
+    try{
+        const response = await ax.post("/chats/delete",chats);
         return await response.data;
     }catch(err){
         if(err.message)

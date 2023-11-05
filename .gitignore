@@ -4,7 +4,7 @@
 /backend/node_modules
 
 /backend/config.env
-
+/backend/uploads
 
 
 #!  Frontend

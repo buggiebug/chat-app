@@ -41,8 +41,10 @@ class MailSender {
                   <p>Sincerely,<br>Team GapSap</p>
               </div>`,
       });
+      return {success:true,message:"Mail sended"}
     } catch (err) {
       console.log(err.message);
+      return {success:false,message:err.message}
     }
   };
 

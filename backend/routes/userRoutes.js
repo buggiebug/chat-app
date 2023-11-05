@@ -1,5 +1,6 @@
 const multer = require("multer");
 const userRoute = require("express").Router();
+const path = require("path")
 
 const { isAuthenticatedUser } = require("../middleware/authentication");
 const {
@@ -14,7 +15,16 @@ const {
 } = require("../controller/userController");
 
 //  Upload profile picture...
-const upload = multer().single("avatar");
+const storage = multer.diskStorage({
+  destination: function(req,file,cb){
+    cb(null,"uploads/");
+  },
+  filename:function(req,file,cb){
+    cb(null, file.fieldname + "_" + Date.now() + "_" + path.extname(file.originalname))
+  }
+})
+const upload = multer({storage}).single("avatar");
+
 
 userRoute.route("/signup").post(createNewUser);
 userRoute.route("/login").post(loginUser);

@@ -24,3 +24,22 @@ body {
 .spin_button_none[type="number"]{
   -moz-appearance: textfield;
 }
+
+#userGridSkleton{
+  animation: skleton 1s ease-in infinite;
+}
+#userGridSkleton p{
+  animation: skleton 0.5s ease-in infinite;
+}
+
+@keyframes skleton {
+  0%{
+    background-color: #ffffff4f;
+  }
+  50%{
+    background-color: #ffffff66;
+  }
+  10%{
+    background-color: #ffffff4f;
+  }
+}

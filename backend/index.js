@@ -1,23 +1,25 @@
 require("dotenv").config({ path: "./config.env" });
+//  ENV Files...
+const PORT = process.env.PORT;
+const HOST = process.env.HOST;
+const DB_URL = process.env.DB_URL;
+const CLIENT_URL = process.env.CLIENT_URL;
 
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
+const { Server } = require("socket.io");
 app.use(express.json());
+
 app.use(
   cors({
     credentials: true,
     maxAge: Date.now() + 24 * 60 * 60 * 1000,
-    origin: "http://localhost:3000",
+    origin: CLIENT_URL,
   })
 );
 app.use(cookieParser());
-
-//  ENV Files...
-const PORT = process.env.PORT;
-const HOST = process.env.HOST;
-const DB_URL = process.env.DB_URL;
 
 // Uncaught Exception Error [It will throw an error when it finds anything undefined & Shutdown the server] ...
 process.on("uncaughtException", (e) => {
@@ -41,8 +43,64 @@ app.use("/api", require("./routes/userRoutes"));
 app.use("/api/chats", require("./routes/chatRoutes"));
 app.use("/api/chat/message", require("./routes/messageRoutes"));
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`server running at http://${HOST}:${PORT}`);
+});
+
+//  Connect Socket io with client...
+const io = new Server(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: CLIENT_URL,
+  },
+});
+
+io.on("connection", (socket) => {
+  // console.log("Connected with io.")
+
+  //  Connect io with client...
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    socket.emit("connected");
+    // console.log(userData)
+  });
+
+  // connect with chat...
+  socket.on("joinChat", (chatId) => {
+    // console.log('User joind ',chatId);
+    socket.join(chatId);
+  });
+
+  //  on new message...
+  socket.on("newMessage", (newMessageReceived) => {
+    // console.log(newMessageReceived);
+    var chat = newMessageReceived.chatId;
+    // console.log(newMessageReceived)
+    if (!chat.users) return console.log("Chat.user is not defined.");
+
+    //  don't show the message to sender only for other user's message will be visible...
+    chat.users.forEach((user) => {
+      if (user._id === newMessageReceived.sender._id) return;
+      else socket.in(user._id).emit("messageReceived", newMessageReceived);
+    });
+
+  });
+  
+  //  Typing...
+  socket.on("typing", (chatId) =>{
+    // console.log("typing : ",chatId);
+    socket.in(chatId).emit("typing");
+  });
+  socket.on("stopTyping", (chatId) => {
+    // console.log("Stop typing : ",chatId);
+    socket.in(chatId).emit("stopTyping");
+  });
+
+  socket.off("setup",(userData)=>{
+    // console.log('Disconnected : ',userData);
+    socket.leave(userData._id)
+  });
+
 });
 
 //  Errors...

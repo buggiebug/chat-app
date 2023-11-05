@@ -10,8 +10,8 @@ const userSchema = new mongoose.Schema(
       require: true,
     },
     profilePicture: {
-      mimetype: { type: String },
-      buffer: { type: Buffer },
+      type: String,
+      default: null,
     },
     email: {
       type: String,
@@ -41,13 +41,22 @@ const userSchema = new mongoose.Schema(
       date: { type: Number },
       tokenVerified: { type: Boolean },
     },
+    // otp:{ // implement it...
+    //   type: Number,
+    //   generateTime: {},
+    //   expiresIn: {}
+    // },
     activeStatus: {
       type: String,
       trim: true,
       default: "online",
     },
+    // completedSteps:{ // Implement it...
+    //   type: Number,
+    //   default: 2
+    // },
   },
-  { timestamps: true,}
+  { timestamps: true }
 );
 
 //  Hash the password...
@@ -82,6 +91,5 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   );
   return isValidPassword;
 };
-
 
 module.exports = mongoose.model("users", userSchema);

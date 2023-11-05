@@ -5,6 +5,19 @@ const MailSender = require("../utils/mailSender");
 const SearchFeature = require("../utils/searchFeature");
 const UserModel = require("../models/userModel");
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+
+//  Get file...
+const getFile = async(fileName)=>{
+  const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
+  if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
+    const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
+    return profileData;
+  }else{
+    return " ";
+  }
+}
 
 //  Create a new user...
 exports.createNewUser = catchAsynError(async (req, res, next) => {
@@ -44,10 +57,12 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
     try {
       if (await mailSender.validateEmailAddress(email)) {
         const otp = objHelper.getOtp(4);
-        await mailSender.sendOtp({
+        const mailRes = await mailSender.sendOtp({
           to: String(email).toLowerCase().trim(),
           otp,
         });
+        if(!mailRes.success)
+          return next(new ErrorHandler(res.message, 400));
         let passwordToken = {
           token: otp,
           date: Date.now() + 15 * 60 * 1000,
@@ -183,34 +198,60 @@ exports.loginUser = catchAsynError(async (req, res, next) => {
 exports.logoutUser = catchAsynError(async (req, res, next) => {
   return res
     .status(200)
-    .cookie("userawthtoken", null, { maxAge: Date.now() })
-    .json({ success: true, message: "Logged out. 🔒" });
+    .cookie("userawthtoken", null)
+    .json({ success: true, message: "Logged out 🔒" });
 });
 
 //  Get user...
 exports.getUserDetails = catchAsynError(async (req, res, next) => {
-  return res.status(200).json({ success: true, user: req.user });
+  try {
+    let user = req.user;
+    const profilePicture = await getFile(user.profilePicture);
+    if(profilePicture)
+    {
+      const jsonData = {
+        _id : user._id,
+        name: user.name,
+        email: user.email,
+        activeStatus:user.activeStatus,
+        profilePicture: profilePicture,
+      }
+      return res.status(200).json({ success: true, user:jsonData });
+    }else
+      return res.status(200).json({ success: true, user });
+  } catch (err) {
+    return next(new ErrorHandler(err.message,400))
+  }
 });
 
 //  Upload profile picture...
 exports.uploadProfilePicture = catchAsynError(async (req, res, next) => {
   try {
     if (!req.file)
-      return next(new ErrorHandler("Please select a picture.", 401));
-    const profilePicture = {
-      mimetype: await req.file.mimetype,
-      buffer: await req.file.buffer,
-    };
+      return next(new ErrorHandler("Please select a picture.", 400));
     const userData = await UserModel.findByIdAndUpdate(
       { _id: req.user._id },
-      { profilePicture }
+      { profilePicture:req.file.filename }
     );
-    const user = await UserModel.findById(userData._id);
-    return res
-      .status(200)
-      .json({ success: true, message: "Profile picture updated.", user });
+    try {
+      const profilePicture = await getFile(userData.profilePicture);
+      if(profilePicture){
+        const jsonData = {
+          _id : userData._id,
+          name: userData.name,
+          email: userData.email,
+          activeStatus:userData.activeStatus,
+          profilePicture: profilePicture,
+        }
+        return res
+          .status(200)
+          .json({ success: true, message: "Profile picture updated.",user:jsonData });
+      }
+    } catch (err) {
+      return next(new ErrorHandler(err.message,400))
+    }
   } catch (err) {
-    return next(new ErrorHandler(err.message, 401));
+    return next(new ErrorHandler(err.message, 400));
   }
 });
 
@@ -220,14 +261,14 @@ exports.forgotUserPassword = catchAsynError(async (req, res, next) => {
   const mailSender = new MailSender();
   const objHelper = new ObjHelper();
   if (!(await objHelper.verifyEmail(email)))
-    return next(new ErrorHandler("Invalid email.", 400));
+    return next(new ErrorHandler("Invalid email.", 401));
 
   const user = await UserModel.findOne({
     email: String(email).toLowerCase().trim(),
   });
   if (!user) return next(new ErrorHandler("User not found.", 400));
   if (!(await user.isVerifiedUser))
-    return next(new ErrorHandler("User not found.", 400));
+    return next(new ErrorHandler("User not found.", 401));
 
   if (await mailSender.validateEmailAddress(email)) {
     //  Save token in db & send token to user...
@@ -263,7 +304,7 @@ exports.updateForgotPassword = catchAsynError(async (req, res, next) => {
   const { tokenId } = req.params;
   const { password, cPassword } = req.body;
   const objHelper = new ObjHelper();
-  if (!tokenId) return next(new ErrorHandler("Invalid URL.", 400));
+  if (!tokenId) return next(new ErrorHandler("Invalid URL.", 401));
   if (
     !objHelper.verifyPassword(password) &&
     !objHelper.verifyPassword(cPassword)
@@ -290,7 +331,7 @@ exports.updateForgotPassword = catchAsynError(async (req, res, next) => {
       { "passwordToken.date": { $gt: Date.now() } },
     ],
   });
-  if (!user) return next(new ErrorHandler("Invalid token.", 400));
+  if (!user) return next(new ErrorHandler("Invalid token.", 401));
   user.password = password;
   user.passwordToken = undefined;
   await user.save({ validateBeforeSave: true, validateModifiedOnly: true });
@@ -305,5 +346,12 @@ exports.getAllUsers = catchAsynError(async (req, res, next) => {
     req.user._id
   );
   const allUsers = await searchFeature;
-  return res.status(200).json({ suceess: true, allUsers });
+
+  //  Update profile pictures to base64 if profile picture...
+  for(let user of allUsers){
+    // console.log(await getFile(user.profilePicture));
+    user.profilePicture = await getFile(user.profilePicture);
+  }
+
+  return res.status(200).json({ success: true, allUsers });
 });
