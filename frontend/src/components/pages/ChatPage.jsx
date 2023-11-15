@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ChatHook } from "../../hooks/ChatsHook";
 import {AiOutlineMore,AiOutlineArrowLeft} from "react-icons/ai"
 import {RiSendPlaneFill} from "react-icons/ri"
+import {CgProfile} from "react-icons/cg"
 import InputButton from "../form_inputs/InputButton";
 import InputBox from "../form_inputs/InputBox";
 import Messages from "./Messages";
@@ -53,7 +54,8 @@ const ChatPage = ({soc}) => {
   // on send message...
   const sendMessage = async(e)=>{
 
-    console.log(notificationState)
+    // console.log(notificationState)
+    console.log(selectedChatState)
 
     e.preventDefault();
     if(messageState.length>0)
@@ -75,8 +77,17 @@ const ChatPage = ({soc}) => {
               <div className="w-full flex items-center basis-full">
                   <span onClick={()=>{backToChatHistory()}} className="md:hidden mr-3 text-xl hover:bg-[rgba(0.5,0.5,0.5,0.1)] rounded-full cursor-pointer p-2"><AiOutlineArrowLeft/></span>
                   <div className="w-full flex justify-between text-black font-semibold items-center cursor-pointer " onClick={()=>{showContactInfo()}}>
-                    <div className="flex justify-center items-center">
-                      <img src={logo} alt="user" className="w-8 md:w-10 rounded-full"/>
+                    <div className="flex justify-center items-center overflow-hidden">
+                      <div className="w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden">
+                        {
+                          !selectedChatState.isGroupChat ? myInfoState._id !== selectedChatState.users[1]._id ?
+                          (selectedChatState.users[1]?.profilePicture && selectedChatState.users[1]?.profilePicture !== ' ')
+                          ?   <img src={`data:image/*;base64, ${selectedChatState.users[1]?.profilePicture}`} alt={`lol`}/>
+                          :   <span className='text-3xl'><CgProfile/></span>
+                          :   <img src={`data:image/*;base64, ${selectedChatState.users[0]?.profilePicture}`} alt={`lol`}/>
+                          :   <span className='text-3xl relative -top-[2px] left-[1px]'>{String(selectedChatState.chatName)[0]}</span>
+                        }
+                      </div>
                       <div className="inline-flex flex-col justify-center items-start">
                         <p className="ml-3">{selectedChatState.isGroupChat?selectedChatState.chatName:myInfoState._id===selectedChatState.users[0]._id?selectedChatState.users[1].name:selectedChatState.users[0].name}</p>
                         <p className="text-xs absolute top-9 ml-3 text-green-500">{isTypingState && !typingState?'typing...':''}</p>

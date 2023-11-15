@@ -2,6 +2,7 @@ import React from 'react'
 import logo from "../images/logo.jpg";
 
 import {RxCross1} from "react-icons/rx";
+import {CgProfile} from "react-icons/cg";
 import {HiOutlineDotsVertical} from "react-icons/hi";
 
 const ContactInfoModel = ({props}) => {
@@ -27,11 +28,16 @@ const ContactInfoModel = ({props}) => {
         </div>
         <div className=''>
             <div className='flex flex-col justify-center items-center py-8'>
-                <img
-                    src={logo}
-                    alt="logo"
-                    className="w-12 md:w-16 rounded-full"
-                />
+                <div className="w-20 h-20 flex justify-center items-center border-2 rounded-full overflow-hidden">
+                    {
+                        !selectedChatState.isGroupChat ? myInfoState._id !== selectedChatState.users[1]._id ?
+                        (selectedChatState.users[1]?.profilePicture && selectedChatState.users[1]?.profilePicture !== ' ')
+                        ?   <img src={`data:image/*;base64, ${selectedChatState.users[1]?.profilePicture}`} alt={`lol`}/>
+                        :   <span className='text-3xl'><CgProfile/></span>
+                        :   <img src={`data:image/*;base64, ${selectedChatState.users[0]?.profilePicture}`} alt={`lol`}/>
+                        :   <span className='text-3xl relative -top-[2px] left-[1px]'>{String(selectedChatState.chatName)[0]}</span>
+                    }
+                </div>
                 <p className="my-2 text-xl">{selectedChatState.isGroupChat?selectedChatState.chatName:myInfoState._id===selectedChatState.users[0]._id?selectedChatState.users[1].name:selectedChatState.users[0].name}</p>
             </div>
             <div className=''>
@@ -42,7 +48,13 @@ const ContactInfoModel = ({props}) => {
                         {selectedChatState.users.map((e,i)=>{
                             return <li key={e._id} className="flex justify-between items-center hover:bg-[rgba(.5,.5,.5,.2)] py-4 px-3">
                                 <div className='flex'>
-                                    <img className="h-10 w-10 rounded-full" src={logo} alt="logo" />
+                                    <div className="w-10 h-10 flex justify-center items-center border-2 rounded-full overflow-hidden">
+                                        {
+                                            e?.profilePicture && e?.profilePicture !== ' ' && e?.profilePicture!==undefined && e?.profilePicture!==null? 
+                                            <img src={`data:image/*;base64, ${e?.profilePicture}`} alt={`lol`}/>
+                                            : <span className='text-3xl'><CgProfile/></span>
+                                        }
+                                    </div>
                                     <div className="ml-3 overflow-hidden">
                                         <p className="text-sm font-medium">{e.name}</p>
                                         <p className="text-sm text-slate-200 truncate">{e.email}</p>

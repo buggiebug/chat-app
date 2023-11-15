@@ -3,10 +3,10 @@ import { UserHook } from '../../hooks/UserHook'
 import {convertImageToBase64} from "../utils/FileHandling";
 
 import {CgProfile} from "react-icons/cg" 
-import {FaPenToSquare} from "react-icons/fa6" 
+import {MdOutlineCloseFullscreen} from "react-icons/md" 
 import { toast } from 'react-toastify'
 
-const MyProfile = () => {
+const MyProfile = ({changeProfileView}) => {
 
     const refBrowseFiles = useRef();
 
@@ -16,6 +16,11 @@ const MyProfile = () => {
         // eslint-disable-next-line
     },[]);
 
+
+    // Close profile...
+    const closeProfile = ()=>{
+        changeProfileView?.changeProfileView(false)
+    }
 
     //  Update profile picture...
     const loadPhoto = ()=>{
@@ -39,10 +44,10 @@ const MyProfile = () => {
             <div className='w-full flex flex-col justify-center'>
                 <div className='flex justify-end mr-5 text-sm text-gray-300'>
                     <input type="file" ref={refBrowseFiles} accept='image/*' name='avatar' onChange={onFileChange} className='hidden'/>
-                    <button onClick={loadPhoto} className='cursor-pointer'><FaPenToSquare/></button>
+                    <button onClick={closeProfile} className='cursor-pointer text-2xl text-white' title='close'><MdOutlineCloseFullscreen/></button>
                 </div>
                 <div className='flex justify-center'>
-                    <div onClick={loadPhoto} className='w-28 h-28 flex justify-center items-center border-2 rounded-full overflow-hidden cursor-pointer'>
+                    <div onClick={loadPhoto} className='hover: w-28 h-28 flex justify-center items-center border-2 rounded-full overflow-hidden cursor-pointer'>
                         {
                             myInfoState.profilePicture && myInfoState.profilePicture !== ' '
                             ?

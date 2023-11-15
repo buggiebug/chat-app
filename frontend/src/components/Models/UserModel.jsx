@@ -1,6 +1,6 @@
 import React from 'react'
 import { ChatHook } from '../../hooks/ChatsHook';
-import {CgProfile} from "react-icons/cg"
+import { CgProfile } from "react-icons/cg"
 
 const UserModel = ({user}) => {
 

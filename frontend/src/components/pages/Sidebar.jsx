@@ -1,13 +1,10 @@
-import React, { useEffect, useState,useRef,Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import {useNavigate} from "react-router-dom"
 import { ChatHook } from "../../hooks/ChatsHook";
 
 import UserGrid from "./UserGrid";
-import logo from "../images/logo.jpg";
 
-import {RxCross1} from "react-icons/rx"
-import {BiSearchAlt,BiLogOutCircle} from "react-icons/bi"
-import {IoMdArrowBack} from "react-icons/io"
+import {BiLogOutCircle} from "react-icons/bi"
 import {HiUserGroup} from "react-icons/hi"
 import {CgMenuHotdog} from "react-icons/cg"
 import {RiDeleteBin5Line} from "react-icons/ri"
@@ -15,15 +12,16 @@ import {RiDeleteBin5Line} from "react-icons/ri"
 import {ProfileSvg,SettingSvg} from '../utils/SvgCollection';
 import { UserHook } from "../../hooks/UserHook";
 import UserModel from "../Models/UserModel";
-import SkletonModel from "../Models/SkletonModel";
 import MyProfile from "./MyProfile";
+import SearchUser from "../Models/SearchUser";
+import CreateGroup from "./CreateGroup";
 
 const Sidebar = ({userAwth}) => {
 
   const navigate = useNavigate();
 
   const { getMyAllChats,myAllChatsState,loadingState, deleteChats, notificationState } = ChatHook();
-  const {logoutSubmit, allUsersState ,searchUserByNameEmail} = UserHook();
+  const {logoutSubmit, keywordState, searchedUsersState} = UserHook();
 
   useEffect(() => {
     if(userAwth(" userawthtoken") || userAwth("userawthtoken")){
@@ -35,39 +33,7 @@ const Sidebar = ({userAwth}) => {
     // eslint-disable-next-line
   }, []);
 
-  const [keywordState,setKeywordState] = useState("");
-  const searchUsersHandleChange = ({target})=>{
-    setKeywordState(target.value);
-    // console.log(target.value);
-    searchUserByNameEmail(target.value)
-  }
-
-  const [searchButtonState,setSearchButtonState] = useState(true);
-  const [backButtonState,setBackButtonState] = useState(false);
-  const refFocus = useRef(null);
-  const onInputFocus = ()=>{
-    setSearchButtonState(false);
-    setBackButtonState(true)
-  }
-  // const onInputFocusOut = ()=>{
-  //   refFocus.current.value = '';
-  //   setKeywordState('')
-  //   setSearchButtonState(true);
-  //   setBackButtonState(false)
-  // }
-  const searchKeyword = ()=>{
-    refFocus.current.focus();
-    setSearchButtonState(false);
-    setBackButtonState(true);
-  }
-  const clearTextButton = ()=>{
-    setKeywordState("")
-    setSearchButtonState(true);
-    setBackButtonState(false);
-    refFocus.current.value = '';
-    // console.log(myAllChatsState)
-  }
-
+  //  Open Sub menu...
   const [subMenuState,setSubMenuState] = useState(false);
   const showSubMenuButton = ()=>{
     if(subMenuState)
@@ -76,6 +42,7 @@ const Sidebar = ({userAwth}) => {
       setSubMenuState(true);
   }
 
+  //  Dummy function..
   const onClick = (e)=>{
     console.log(e)
   }
@@ -97,21 +64,6 @@ const Sidebar = ({userAwth}) => {
     }
   }
 
-  const Skleton = ()=>{
-    return (
-      <>
-        <SkletonModel/>
-        <SkletonModel/>
-        <SkletonModel/>
-        <SkletonModel/>
-        <SkletonModel/>
-        <SkletonModel/>
-        <SkletonModel/>
-        <SkletonModel/>
-      </>
-    )
-  }
-
   //  Change Profile View State...
   const [viewProfileState,setViewProfileState] = useState(false);
   const changeProfileView = ()=>{
@@ -123,6 +75,12 @@ const Sidebar = ({userAwth}) => {
     setSubMenuState(false);  
   }
 
+  //  Open Create Group...
+  const [viewCreateGroupState,setViewCreateGroupState] = useState(false);
+  const openCreateGroup = ()=>{
+    setViewCreateGroupState(viewCreateGroupState)
+  }
+
 
   return (
     <>
@@ -132,14 +90,7 @@ const Sidebar = ({userAwth}) => {
           {/* Sidebar's navbar */}
           <div className="sticky top-0 bg-white h-14 text-black flex justify-between items-center px-3">
             <div className="w-full">
-              {/* <form> */}
-                <div className="text-gray-500 bg-gray-100 border-2 rounded-md flex justify-between items-center px-3">
-                  <input ref={refFocus} onFocus={()=>{onInputFocus()}} className="order-3 bg-gray-100 w-full mx-2 outline-none px-1 py-2" onChange={searchUsersHandleChange} type="text" name="keyword" placeholder="Search"/> {/**onBlur={()=>{onInputFocusOut()}} */}
-                  <button type="button" onClick={()=>{searchKeyword()}} className={`${searchButtonState?"inline-block":"hidden"} order-1 text-xl cursor-pointer`}><BiSearchAlt/></button>
-                  <button type="reset" onClick={()=>{clearTextButton()}} className={`${backButtonState?"inline-block":"hidden"} order-2 text-xl cursor-pointer`}><IoMdArrowBack/></button>
-                  <button type="reset"onClick={()=>{clearTextButton()}} className={`order-4 text-lg cursor-pointer ${keywordState.length>0?"inline-block":"hidden"}`}><RxCross1/></button>
-                </div>
-              {/* </form> */}
+              <SearchUser/>
             </div>
             <div className="mx-2 text-gray-400 hover:text-gray-500">
               <button className="text-2xl" onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
@@ -148,9 +99,9 @@ const Sidebar = ({userAwth}) => {
                     <ProfileSvg/>
                     <span>Profile</span>
                   </button>
-                  <button onClick={(e)=>{onClick(e)}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                  <button onClick={(e)=>{openCreateGroup()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <HiUserGroup/>
-                    <span className="relative left-2">Create Group</span>
+                    <span className="relative left-2">New Group</span>
                   </button>
                   <button onClick={()=>{deleteAllChats()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <RiDeleteBin5Line/>
@@ -169,33 +120,28 @@ const Sidebar = ({userAwth}) => {
           </div>
             
 
-          { viewProfileState?
-            <div className={`text-ellipsis break-words`}>
-              <MyProfile/>
-            </div>
-          :
+          {/* My Profile... */}
+          <div className={`${viewProfileState?"w-[100%] h-[100%]":"w-[0px] h-[0px]"} transition-all duration-1000 text-ellipsis break-words overflow-hidden`}>
+            <MyProfile changeProfileView={{changeProfileView}}/>
+          </div>
+
+          <CreateGroup/>
+
+          {!viewProfileState &&
             // Display User will be there...
             <div className={``}>
               {/* Searched user will be here */}
-              {keywordState?.length>0?
-              <Suspense fallback={<Skleton/>}>
-                {
-                  allUsersState?.length > 0 ?
-                  allUsersState?.map((e)=>{
+              {keywordState?.length > 0?
+                searchedUsersState?.length > 0 ?
+                  searchedUsersState?.map((e)=>{
                     return <UserModel key={e._id} user={e}/>
                   })
-                  :<p className="flex justify-center align-middle">No user found.</p>
-                }
-              </Suspense>
+                : <p className="flex justify-center align-middle">No user found.</p>
               : // {/* Chat History will be here */}
-              <Suspense fallback={<Skleton/>}>
-                {
-                  loadingState.loading === true && loadingState.loadingPath === 'allChats' ? <p className="flex justify-center align-middle">Loading...</p>:
-                  myAllChatsState?.map((chat)=>{
-                    return <UserGrid key={chat._id} userData={chat}/>
-                  })
-                }
-              </Suspense>
+                loadingState.loading === true && loadingState.loadingPath === 'allChats' ? <p className="flex justify-center align-middle">Loading...</p>:
+                myAllChatsState?.map((chat)=>{
+                  return <UserGrid key={chat._id} userData={chat}/>
+                })
               }
             </div>
           }
