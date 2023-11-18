@@ -23,7 +23,7 @@ const UserGrid = ({ userData }) => {
 
   return (
     <>
-      <div className={`py-2 px-3 my-0 flex items-center ${(userData !== undefined && selectedUserChatState!== undefined) && selectedUserChatState._id === userData._id?"bg-[rgba(0.5,0.5,0.5,0.5)]":"hover:bg-[rgba(0.5,0.5,0.5,0.3)]"}`}>
+      <div className={`py-2 px-3 my-0 text-black flex items-center ${(userData !== undefined && selectedUserChatState!== undefined) && selectedUserChatState._id === userData._id?"bg-[rgba(0.5,0.5,0.5,0.5)]":"hover:bg-[rgba(0.5,0.5,0.5,0.3)]"}`}>
         <div className={` w-[95%] flex items-center cursor-pointer`} onClick={()=>{openChat(userData)}}>
           <div className="w-fit">
             <div className='w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden'>
@@ -53,9 +53,9 @@ const UserGrid = ({ userData }) => {
               </div>
             </div>
             <div className="relative top-1">
-              <p className="text-white text-xl flex justify-center items-center">
+              <p className="text-xl flex justify-center items-center">
                 <IoIosNotificationsOutline/>
-                <span className="text-white text-[10px] relative right-[15px] -top-[1px]">
+                <span className="text-[10px] relative right-[15px] -top-[1px]">
                   { userData.notify }
                 </span>
               </p>

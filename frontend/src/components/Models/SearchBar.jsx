@@ -5,14 +5,13 @@ import {IoMdArrowBack} from "react-icons/io"
 import { UserHook } from "../../hooks/UserHook";
 
 
-const SearchUser = () => {
+const SearchUser = ({someRef}) => {
 
-  const {keywordState, setKeywordState, searchUserByNameEmail, searchedUsersState} = UserHook();
+  const {searchUserKeywordState, setSearchUserKeywordState, searchUserByNameEmail} = UserHook();
 
   const searchUsersHandleChange = ({ target }) => {
-    setKeywordState(target.value);
+    setSearchUserKeywordState(target.value);
     searchUserByNameEmail(target.value)
-    console.log(searchedUsersState)
   };
 
   const [searchButtonState, setSearchButtonState] = useState(true);
@@ -28,7 +27,7 @@ const SearchUser = () => {
     setBackButtonState(true);
   };
   const clearTextButton = () => {
-    setKeywordState("");
+    setSearchUserKeywordState("");
     setSearchButtonState(true);
     setBackButtonState(false);
     refFocus.current.value = "";
@@ -40,7 +39,7 @@ const SearchUser = () => {
         <input ref={refFocus} onFocus={()=>{onInputFocus()}} className="order-3 bg-gray-100 w-full mx-2 outline-none px-1 py-2" onChange={searchUsersHandleChange} type="text" name="keyword" placeholder="Search"/>
         <button type="button" onClick={()=>{searchKeyword()}} className={`${searchButtonState?"inline-block":"hidden"} order-1 text-xl cursor-pointer`}><BiSearchAlt/></button>
         <button type="reset" onClick={()=>{clearTextButton()}} className={`${backButtonState?"inline-block":"hidden"} order-2 text-xl cursor-pointer`}><IoMdArrowBack/></button>
-        <button type="reset"onClick={()=>{clearTextButton()}} className={`order-4 text-lg cursor-pointer ${keywordState.length>0?"inline-block":"hidden"}`}><RxCross1/></button>
+        <button ref={someRef} type="reset"onClick={()=>{clearTextButton()}} className={`order-4 text-lg cursor-pointer ${searchUserKeywordState.length>0?"inline-block":"hidden"}`}><RxCross1/></button>
       </div>
     </>
   );

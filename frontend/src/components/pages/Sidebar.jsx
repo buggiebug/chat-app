@@ -1,27 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {useNavigate} from "react-router-dom"
 import { ChatHook } from "../../hooks/ChatsHook";
 
-import UserGrid from "./UserGrid";
+import UserGrid from "../Models/UserGrid";
 
 import {BiLogOutCircle} from "react-icons/bi"
 import {HiUserGroup} from "react-icons/hi"
-import {CgMenuHotdog} from "react-icons/cg"
+import {CgMenuHotdog,CgProfile} from "react-icons/cg"
 import {RiDeleteBin5Line} from "react-icons/ri"
+// import {IoPersonAddSharp} from "react-icons/io5"
+import {CiCircleRemove} from "react-icons/ci"
 
 import {ProfileSvg,SettingSvg} from '../utils/SvgCollection';
 import { UserHook } from "../../hooks/UserHook";
-import UserModel from "../Models/UserModel";
+import SearchUserModel from "../Models/SearchUserModel";
 import MyProfile from "./MyProfile";
-import SearchUser from "../Models/SearchUser";
+import SearchBar from "../Models/SearchBar";
+import SkletonModel from "../Models/SkletonModel";
 import CreateGroup from "./CreateGroup";
 
 const Sidebar = ({userAwth}) => {
 
   const navigate = useNavigate();
 
-  const { getMyAllChats,myAllChatsState,loadingState, deleteChats, notificationState } = ChatHook();
-  const {logoutSubmit, keywordState, searchedUsersState} = UserHook();
+  const { getMyAllChats,myAllChatsState,loadingState, deleteChats, userAddedToGroupState, removeFromAddingToGroup } = ChatHook();
+  const {logoutSubmit, searchUserKeywordState, searchedUsersState} = UserHook();
 
   useEffect(() => {
     if(userAwth(" userawthtoken") || userAwth("userawthtoken")){
@@ -78,7 +81,42 @@ const Sidebar = ({userAwth}) => {
   //  Open Create Group...
   const [viewCreateGroupState,setViewCreateGroupState] = useState(false);
   const openCreateGroup = ()=>{
-    setViewCreateGroupState(viewCreateGroupState)
+    if(viewCreateGroupState)
+      setViewCreateGroupState(false);
+    else{
+      setViewCreateGroupState(true);
+      setViewProfileState(false);
+    }
+
+    setSubMenuState(false); 
+  }
+
+
+  //  Close user search box...
+  const closeRef = useRef();
+  const closeUserSearchBoxAndGoToNextStep = ()=>{
+    closeRef.current.click();
+  }
+
+  //  Showing users for create group with Image and Name only...
+  const UserShow = (user)=>{
+    return(
+      <>
+        <div className="flex flex-col justify-center items-center">
+          <div className='w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden'>
+            {
+              user.profilePicture && user.profilePicture !== ' '
+              ?   <img src={`data:image/*;base64, ${user.profilePicture}`} alt="profile" />
+              :   <span className='text-3xl'><CgProfile/></span>
+            }
+          </div>
+          <p className="font-medium">{user.name}</p>    
+          <div className='mx-5 text-red-800 hover:text-red-600 cursor-pointer'>
+            <p className='scale-125' onClick={()=>{removeFromAddingToGroup(user)}}><CiCircleRemove/></p>
+          </div> 
+        </div>
+      </>
+    )
   }
 
 
@@ -89,9 +127,11 @@ const Sidebar = ({userAwth}) => {
 
           {/* Sidebar's navbar */}
           <div className="sticky top-0 bg-white h-14 text-black flex justify-between items-center px-3">
+            {/* Search Bar... */}
             <div className="w-full">
-              <SearchUser/>
+              <SearchBar someRef={closeRef}/>
             </div>
+            {/* Sub menus... */}
             <div className="mx-2 text-gray-400 hover:text-gray-500">
               <button className="text-2xl" onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
               <div className={`${subMenuState?'block':'hidden'} absolute right-0 top-14 w-48 text-gray-900 bg-white rounded-lg rounded-tr-none`}>
@@ -125,23 +165,55 @@ const Sidebar = ({userAwth}) => {
             <MyProfile changeProfileView={{changeProfileView}}/>
           </div>
 
-          <CreateGroup/>
-
           {!viewProfileState &&
             // Display User will be there...
             <div className={``}>
               {/* Searched user will be here */}
-              {keywordState?.length > 0?
+              {searchUserKeywordState?.length > 0?
                 searchedUsersState?.length > 0 ?
-                  searchedUsersState?.map((e)=>{
-                    return <UserModel key={e._id} user={e}/>
-                  })
+                  <>
+                    {
+                      // If selected [create group] then show group creation info else add user to the chat...
+                      viewCreateGroupState?
+                      <>
+                        {/* Show users which will be added into the group... */}
+                        <div className={`${userAddedToGroupState.length<=0?"hidden":"block"}`}>
+                          <div className={`flex overflow-x-scroll overflow-y-hidden mt-5 mx-1`}>
+                            {userAddedToGroupState.map((e)=>{
+                              return (
+                                <div key={e._id} className="mx-2">
+                                  {UserShow(e)}
+                                </div>
+                              )
+                            })}
+                          </div>
+                          <div className="flex justify-end m-1 -mt-3">
+                            <button onClick={()=>{closeUserSearchBoxAndGoToNextStep()}} className="border px-3 py-1 rounded-sm hover:opacity-90 hover:text-black">Next</button>
+                          </div>
+                        </div>
+                        <hr />
+                        {
+                          // This is for group chat...
+                          searchedUsersState?.map((e)=>{
+                            return <SearchUserModel key={e._id} user={e} isForGroup={viewCreateGroupState}/>
+                          })
+                        }
+                      </>
+                      :
+                      // This is for create direct chat [oneToOneChat]...
+                      searchedUsersState?.map((e)=>{
+                        return <SearchUserModel key={e._id} user={e} isForGroup={viewCreateGroupState}/>
+                      })
+                    }
+                  </>
                 : <p className="flex justify-center align-middle">No user found.</p>
               : // {/* Chat History will be here */}
-                loadingState.loading === true && loadingState.loadingPath === 'allChats' ? <p className="flex justify-center align-middle">Loading...</p>:
+                !viewCreateGroupState?
+                loadingState.loading === true && loadingState.loadingPath === 'allChats' ? <SkletonModel/> :
                 myAllChatsState?.map((chat)=>{
                   return <UserGrid key={chat._id} userData={chat}/>
                 })
+                : <CreateGroup closeGroup={setViewCreateGroupState}/>  // Create group...
               }
             </div>
           }

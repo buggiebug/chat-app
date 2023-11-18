@@ -102,7 +102,7 @@ function UserContext(props) {
   };
 
   //
-  const [keywordState, setKeywordState] = useState("");
+  const [searchUserKeywordState, setSearchUserKeywordState] = useState("");
 
   return (
     <CreateUserContext.Provider
@@ -114,8 +114,8 @@ function UserContext(props) {
         getUserInfo,
         myInfoState,
         uploadProfilePhoto,
-        keywordState,
-        setKeywordState,
+        searchUserKeywordState,
+        setSearchUserKeywordState,
         searchUserByNameEmail,
         searchedUsersState,
       }}

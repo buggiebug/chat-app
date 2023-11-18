@@ -1,5 +1,5 @@
 import { React, createContext, useState } from "react";
-import { getAllChats, createOneToOneChat, OneToOneMessage, sendMessage, deleteAllChats } from "../api/ChatApi";
+import { getAllChats, createOneToOneChat, OneToOneMessage, sendMessage, deleteAllChats,createGroupChat } from "../api/ChatApi";
 import { toast } from "react-toastify";
 
 import { io } from "socket.io-client";
@@ -100,17 +100,37 @@ function ChatContext({ children }) {
       toast.info(res.message);
       return true;
     }
-    toast.warn(res.message);
+    toast.info(res.message);
     setLoadingState({ loading: false, loadingPath: "" });
   }
 
+  //  Users for group chats...
+  const [userAddedToGroupState,setUserAddedToGroupState] = useState([]);
+  //  Remove users form adding to the group...
+  const removeFromAddingToGroup = (user)=>{
+    setUserAddedToGroupState(userAddedToGroupState.filter((e)=>e._id !== user._id));
+  }
+
+  // Create group chats...
+  const createNewGroupChat = async(groupChatData)=>{
+    setLoadingState({ loading: true, loadingPath: "create_group_chat" });
+    const res = await createGroupChat(groupChatData);
+    if (res.success) {
+      setLoadingState({ loading: false, loadingPath: "" });
+      setMyAllChatsState(res.chats);
+      toast.info(res.message);
+      return true;
+    }
+    toast.info(res.message);
+    setLoadingState({ loading: false, loadingPath: "" });
+  }
 
   return (
     <CreateChatContext.Provider
       value={{
         socket,
-        getMyAllChats,
         loadingState,
+        getMyAllChats,
         myAllChatsState,
         openSelectedChat,
         selectedChatState,
@@ -122,7 +142,11 @@ function ChatContext({ children }) {
         sendMessage_C,
         notificationState,
         setNotificationState,
-        deleteChats
+        deleteChats,
+        userAddedToGroupState,
+        setUserAddedToGroupState,
+        removeFromAddingToGroup,
+        createNewGroupChat
       }}
     >
       {children}

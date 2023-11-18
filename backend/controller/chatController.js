@@ -90,8 +90,8 @@ exports.fetchChat = catchAsynError(async (req, res, next) => {
       .populate("latestMessage")
       .sort({ updatedAt: -1 });
   
-    const resData = await updatedChat(chats);  
-    return res.status(200).json({ success: true, chats:resData });
+    const updatedData = await updatedChat(chats);  
+    return res.status(200).json({ success: true, chats: updatedData });
   } catch (err) {
     return next(new ErrorHandler(err.message, 400));
   }
@@ -124,14 +124,18 @@ exports.createGroupChat = catchAsynError(async (req, res, next) => {
       groupAdmin: req.user,
     });
     await createdGroup.save({ validateModifiedOnly: true });
-    const group = await ChatModel.findById(createdGroup._id)
-      .populate({ path: "users", select: "name email" })
-      .populate("latestMessage")
-      .populate({ path: "groupAdmin", select: "name email" });
+    const chats = await ChatModel.find({
+      users: { $elemMatch: { $eq: req.user._id } }
+    })
+    .populate("users", "name email profilePicture")
+    .populate("latestMessage")
+    .populate({ path: "groupAdmin", select: "name email" })
+    .sort({ updatedAt: -1 });
+    const updatedData = await updatedChat(chats);  
     return res.status(200).json({
       success: true,
-      message: `New group created ${groupName}`,
-      group,
+      message: `New group created.`,
+      chats: updatedData,
     });
   } catch (err) {
     return next(new ErrorHandler(err.message, 400));

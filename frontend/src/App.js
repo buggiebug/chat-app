@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <ToastContainer draggable={true} limit={3} autoClose={1500} theme="colored" newestOnTop={true} position="top-center"/>
+        <ToastContainer draggable={true} limit={3} autoClose={1500} theme="colored" newestOnTop={true} position="bottom-right"/>
         <Routes>
           <Route exect path="/" element={<Auth />} />
           <Route exect path="/home" element={<Home />} />
