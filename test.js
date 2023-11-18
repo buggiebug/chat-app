@@ -11,7 +11,7 @@ const data = [
       },
       {
         _id: "650546e0389d91d2a5fa69e9",
-        email: "mlol@gmail.com",
+        email: "mlol1@gmail.com",
         name: "Bug",
       },
     ],
@@ -116,7 +116,7 @@ const data2 = {
     },
     {
       _id: "650546e0389d91d2a5fa69e9",
-      email: "mlol@gmail.com",
+      email: "mlol1@gmail.com",
       name: "Bug",
     },
   ],
@@ -125,4 +125,5 @@ const data2 = {
   __v: 0,
 };
 
+// Learn [some] method, It will return true/false and iterates the array timeComplexity O(n) if item found on 1st index then O(1)...
 console.log(data.some(e=>e._id === data2._id));
