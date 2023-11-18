@@ -11,7 +11,7 @@ const data = [
       },
       {
         _id: "650546e0389d91d2a5fa69e9",
-        email: "mutthbaz@gmail.com",
+        email: "mlol@gmail.com",
         name: "Bug",
       },
     ],
@@ -116,7 +116,7 @@ const data2 = {
     },
     {
       _id: "650546e0389d91d2a5fa69e9",
-      email: "mutthbaz@gmail.com",
+      email: "mlol@gmail.com",
       name: "Bug",
     },
   ],
