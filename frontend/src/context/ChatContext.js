@@ -42,20 +42,17 @@ function ChatContext({ children }) {
 
   //  Create OneToOne Chat...
   const connectWithOneToOneChat = async(userId)=>{
+    console.log(userId);
+    console.log(myAllChatsState);
     setLoadingState({ loading: true, loadingPath: "oneToOneChat" });
     const res = await createOneToOneChat(userId);
     if (res.success) {
+      if(Array.isArray(res.isChat)){
+        setMyAllChatsState([...res.isChat,...myAllChatsState]);
+      }else{
+        setMyAllChatsState([res.isChat,...myAllChatsState]);
+      }
       setLoadingState({ loading: false, loadingPath: "" });
-      console.log(res?.isChat)
-      // console.log(myAllChatsState.some(oldChat => oldChat._id === isChat?._id));
-      // if(!myAllChatsState.some(oldChat => oldChat._id === ...res.isChat[0]?._id)){
-      //   console.log("if")
-      //   openSelectedChat(...res.isChat)
-      //   setMyAllChatsState([...res.isChat,...myAllChatsState]);
-      // }else{
-      //   console.log("else")
-      //   openSelectedChat(...res.isChat)
-      // }
       return true;
     }
     toast.warn(res.message);

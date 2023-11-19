@@ -5,21 +5,30 @@ import { IoPersonAddSharp } from "react-icons/io5"
 
 const UserModel = ({user,isForGroup}) => {
 
-    const {connectWithOneToOneChat,userAddedToGroupState,setUserAddedToGroupState}  = ChatHook();
+    const {myAllChatsState,connectWithOneToOneChat,userAddedToGroupState,setUserAddedToGroupState}  = ChatHook();
 
     
     // Check if chat is for group then add the users to the list else create chat directly...
     const connect = async(user)=>{
         // console.log(user)
+
+        // For single chat...
         if(user!==undefined && !isForGroup){
-            await connectWithOneToOneChat(user._id)
+            let isAlreadyUser = await myAllChatsState.some((us)=>{
+                return us?.users[1]?._id===user._id;
+            });
+            if(!isAlreadyUser){
+                await connectWithOneToOneChat(user._id)
+            }
         }
+        // For group chat...
         if(isForGroup){
-            let isAlreadyUser = userAddedToGroupState.some((us)=>{
+            let isAlreadyUser = await userAddedToGroupState.some((us)=>{
                 return us._id===user._id;
             })
-            if(!isAlreadyUser)
+            if(!isAlreadyUser){
                 setUserAddedToGroupState([...userAddedToGroupState,user]);
+            }
         }
     }
 

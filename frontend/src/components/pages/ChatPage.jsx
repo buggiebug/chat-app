@@ -6,7 +6,6 @@ import {CgProfile} from "react-icons/cg"
 import InputButton from "../form_inputs/InputButton";
 import InputBox from "../form_inputs/InputBox";
 import Messages from "./Messages";
-import logo from "../images/logo.jpg"
 import ContactInfoModel from "./ContactInfoModel";
 import { UserHook } from "../../hooks/UserHook";
 
@@ -71,11 +70,11 @@ const ChatPage = ({soc}) => {
     <>
       <div className={`h-[100vh] ${contactInfoState==="visible"?"flex justify-between":""}`}>
         {selectedChatState!==undefined?
-        <div className={`h-full ${contactInfoState==="visible"?" hidden md:flex flex-col justify-between basis-[60%]":"basis-full"}`}>
+        <div className={`h-full ${contactInfoState==="visible"?" hidden md:flex flex-col justify-between w-0 basis-[0%] lg:w-auto lg:basis-[60%]":"basis-full"}`}>
           {/* Chats NavBar */}
-            <div className={`sticky top-0 bg-white h-14 text-black flex justify-between items-center px-3`}>
+            <div className={`sticky top-0 bg-white h-14 text-black flex justify-between items-center px-1 sm:px-3`}>
               <div className="w-full flex items-center basis-full">
-                  <span onClick={()=>{backToChatHistory()}} className="md:hidden mr-3 text-xl hover:bg-[rgba(0.5,0.5,0.5,0.1)] rounded-full cursor-pointer p-2"><AiOutlineArrowLeft/></span>
+                  <span onClick={()=>{backToChatHistory()}} className="md:hidden mr-1 sm:mr-3 text-xl hover:bg-[rgba(0.5,0.5,0.5,0.1)] rounded-full cursor-pointer p-2"><AiOutlineArrowLeft/></span>
                   <div className="w-full flex justify-between text-black font-semibold items-center cursor-pointer " onClick={()=>{showContactInfo()}}>
                     <div className="flex justify-center items-center overflow-hidden">
                       <div className="w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden">
@@ -84,12 +83,14 @@ const ChatPage = ({soc}) => {
                           (selectedChatState.users[1]?.profilePicture && selectedChatState.users[1]?.profilePicture !== ' ')
                           ?   <img src={`data:image/*;base64, ${selectedChatState.users[1]?.profilePicture}`} alt={`lol`}/>
                           :   <span className='text-3xl'><CgProfile/></span>
-                          :   <img src={`data:image/*;base64, ${selectedChatState.users[0]?.profilePicture}`} alt={`lol`}/>
+                          :   selectedChatState.users[0]?.profilePicture && selectedChatState.users[0]?.profilePicture !== ' '
+                          ?   <img src={`data:image/*;base64, ${selectedChatState.users[0]?.profilePicture}`} alt={`img`} />
+                          :   <span className='text-3xl'><CgProfile/></span>
                           :   <span className='text-3xl relative -top-[2px] left-[1px]'>{String(selectedChatState.chatName)[0]}</span>
                         }
                       </div>
                       <div className="inline-flex flex-col justify-center items-start">
-                        <p className="ml-3">{selectedChatState.isGroupChat?selectedChatState.chatName:myInfoState._id===selectedChatState.users[0]._id?selectedChatState.users[1].name:selectedChatState.users[0].name}</p>
+                        <p className="ml-3 w-[50vw] sm:w-[22vw] md:w-[22vw] lg:w-[18vw] truncate">{selectedChatState.isGroupChat?selectedChatState.chatName:myInfoState._id===selectedChatState.users[0]._id?selectedChatState.users[1].name:selectedChatState.users[0].name}</p>
                         <p className="text-xs absolute top-9 ml-3 text-green-500">{isTypingState && !typingState?'typing...':''}</p>
                       </div>
                     </div>
@@ -130,7 +131,7 @@ const ChatPage = ({soc}) => {
 
         {/* Contact info model... */}
         {selectedChatState!==undefined?
-          <div className={`${contactInfoState} md:visible md:basis-[40%]  ${contactInfoState==="visible"?"basis-[100%]":"basis-[0%]"}`}>
+          <div className={`${contactInfoState} md:visible md:basis-full lg:basis-[40%]  ${contactInfoState==="visible"?"basis-[100%]":"basis-[0%]"}`}>
             <ContactInfoModel props={{setContactInfoState,selectedChatState,myInfoState}}/>
           </div>:""
         }

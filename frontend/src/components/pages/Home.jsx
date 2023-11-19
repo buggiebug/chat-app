@@ -54,11 +54,11 @@ function Home() {
   return <>
     <div className="bg-[#21ABA5] h-[100vh] text-white flex justify-between">
       {/* Sidebar */}
-      <div className={`${selectedUserChatState?"basis-0":"basis-full"} sm:basis-[50%] md:basis-[30%] sm:border-r-2 md:border-r-2 overflow-x-hidden overflow-y-scroll`}>
+      <div className={`${selectedUserChatState?"basis-0":"basis-full"} sm:basis-[42%] md:basis-[40%] lg:basis-[30%] sm:border-r-2 md:border-r-2 overflow-x-hidden overflow-y-scroll`}>
         <Sidebar userAwth={tokenName}/>
       </div>
       {/* Chats */}
-      <div className={`${selectedUserChatState?"basis-full":"basis-0"} sm:basis-[50%] md:basis-[70%] overflow-x-hidden overflow-hidden`}>
+      <div className={`${selectedUserChatState?"basis-full":"basis-0"} sm:basis-[58%] md:basis-[60%] lg:basis-[70%] overflow-x-hidden overflow-hidden`}>
         <ChatPage soc={{socketConnectedState,typingState,isTypingState,setTypingState}}/>
       </div>
     </div>

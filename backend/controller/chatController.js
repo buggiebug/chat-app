@@ -7,7 +7,7 @@ const path = require("path");
 const fs = require("fs");
 
 
-//  Get file...
+//  Get file data via using filename if available else return empty string...
 const getFile = async(fileName)=>{
   const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
   if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
@@ -18,7 +18,9 @@ const getFile = async(fileName)=>{
   }
 }
 
+//  It takes array of chats and then extract users info and update their profile path with buffer image...
 const updatedChat = async(chats)=>{
+  // console.log(chats);
   const chitchat = [...chats];
   await Promise.all(
     chitchat.map(async(chat,ind_1)=>{
@@ -34,10 +36,9 @@ const updatedChat = async(chats)=>{
 
 
 //  Create new chat...
-exports.accessChat = catchAsynError(async (req, res, next) => {
+exports.createOneToOneChat = catchAsynError(async (req, res, next) => {
   const helper = new ObjHelper();
   const { userId } = req.body;
-  // console.log(userId);
   if (!helper.isValidMongoId(userId))
     return next(new ErrorHandler("Invalid I'd.", 400));
 
@@ -50,17 +51,12 @@ exports.accessChat = catchAsynError(async (req, res, next) => {
       },
     ],
   })
-    .populate({ path: "users", select: "name email" })
+    .populate({ path: "users", select: "name email profilePicture" })
     .populate("latestMessage");
 
-  // .populate("users", "-password -profilePicture")
-  // isChat = await UserModel.populate(isChat, {
-  //   path: "latestMessage.sender",
-  //   select: "name email",
-  // });
-
-  if (isChat.length > 0) {
-    return res.status(200).json({ success: true, isChat: isChat });
+    if (isChat.length > 0) {
+    const updatedData = await updatedChat(isChat);  
+    return res.status(200).json({ success: true, isChat: updatedData });
   } else {
     try {
       const chatData = {
@@ -72,8 +68,9 @@ exports.accessChat = catchAsynError(async (req, res, next) => {
       await createChat.save({ validateModifiedOnly: true });
       const isChat = await ChatModel.findOne({
         _id: createChat._id,
-      }).populate({ path: "users", select: "name email" });
-      return res.status(200).json({ success: true, isChat });
+      }).populate({ path: "users", select: "name email profilePicture" });
+      const updatedData = await updatedChat(Array(isChat));  
+      return res.status(200).json({ success: true, isChat: updatedData });
     } catch (err) {
       return next(new ErrorHandler(err.message, 400));
     }
@@ -81,7 +78,7 @@ exports.accessChat = catchAsynError(async (req, res, next) => {
 });
 
 //  Get all chats...
-exports.fetchChat = catchAsynError(async (req, res, next) => {
+exports.fetchAllChat = catchAsynError(async (req, res, next) => {
   try {
     const chats = await ChatModel.find({
       users: { $elemMatch: { $eq: req.user._id } },
@@ -176,7 +173,7 @@ exports.renameGroupChat = catchAsynError(async (req, res, next) => {
 });
 
 //  Add to group chat...
-exports.addToGroup = catchAsynError(async (req, res, next) => {
+exports.addToGroupChat = catchAsynError(async (req, res, next) => {
   const { groupId } = req.params;
   const { userId } = req.body;
   const helper = new ObjHelper();

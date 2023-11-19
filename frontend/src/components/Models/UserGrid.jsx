@@ -30,9 +30,11 @@ const UserGrid = ({ userData }) => {
               {
                 !userData.isGroupChat ? myInfoState._id !== userData.users[1]._id ?
                 (userData.users[1]?.profilePicture && userData.users[1]?.profilePicture !== ' ')
-                ?   <img src={`data:image/*;base64, ${userData.users[1]?.profilePicture}`} alt={`lol`} />
+                ?   <img src={`data:image/*;base64, ${userData.users[1]?.profilePicture}`} alt={`img`} />
                 :   <span className='text-3xl'><CgProfile/></span>
-                :   <img src={`data:image/*;base64, ${userData.users[0]?.profilePicture}`} alt={`lol`} />
+                :   userData.users[0]?.profilePicture && userData.users[0]?.profilePicture !== ' '
+                ?   <img src={`data:image/*;base64, ${userData.users[0]?.profilePicture}`} alt={`img`} />
+                :   <span className='text-3xl'><CgProfile/></span>
                 :   <span className='text-3xl'>{String(userData.chatName)[0]}</span>
               }
             </div>
@@ -40,7 +42,7 @@ const UserGrid = ({ userData }) => {
           <div className="mx-2 ml-3 flex items-center justify-between w-full pb-2">
             <div className="flex flex-col justify-between w-full">
               <div className="flex justify-between w-full">
-                <p className="font-medium">
+                <p className="font-medium w-[55vw] sm:w-[22vw] md:w-[22vw] lg:w-[18vw] truncate">
                   {userData.isGroupChat?userData.chatName:myInfoState._id===userData.users[0]._id?userData.users[1].name:userData.users[0].name}
                   </p>
                 <p className="text-sm">{userData.lastMessageTime}</p>

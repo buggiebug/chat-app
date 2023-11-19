@@ -9,7 +9,7 @@ import {HiUserGroup} from "react-icons/hi"
 import {CgMenuHotdog,CgProfile} from "react-icons/cg"
 import {RiDeleteBin5Line} from "react-icons/ri"
 // import {IoPersonAddSharp} from "react-icons/io5"
-import {CiCircleRemove} from "react-icons/ci"
+import {MdOutlineNextPlan,MdOutlineRemoveCircleOutline} from "react-icons/md"
 
 import {ProfileSvg,SettingSvg} from '../utils/SvgCollection';
 import { UserHook } from "../../hooks/UserHook";
@@ -18,6 +18,7 @@ import MyProfile from "./MyProfile";
 import SearchBar from "../Models/SearchBar";
 import SkletonModel from "../Models/SkletonModel";
 import CreateGroup from "./CreateGroup";
+import InputButton from "../form_inputs/InputButton";
 
 const Sidebar = ({userAwth}) => {
 
@@ -111,8 +112,8 @@ const Sidebar = ({userAwth}) => {
             }
           </div>
           <p className="font-medium">{user.name}</p>    
-          <div className='mx-5 text-red-800 hover:text-red-600 cursor-pointer'>
-            <p className='scale-125' onClick={()=>{removeFromAddingToGroup(user)}}><CiCircleRemove/></p>
+          <div className='mx-5 mt-2 text-red-800 hover:text-red-600 cursor-pointer'>
+            <p className='scale-125' onClick={()=>{removeFromAddingToGroup(user)}}><MdOutlineRemoveCircleOutline/></p>
           </div> 
         </div>
       </>
@@ -126,13 +127,13 @@ const Sidebar = ({userAwth}) => {
         <div className="">
 
           {/* Sidebar's navbar */}
-          <div className="sticky top-0 bg-white h-14 text-black flex justify-between items-center px-3">
+          <div className="sticky top-0 bg-white h-14 text-black flex justify-between items-center lg:pl-3 pl-1">
             {/* Search Bar... */}
             <div className="w-full">
               <SearchBar someRef={closeRef}/>
             </div>
             {/* Sub menus... */}
-            <div className="mx-2 text-gray-400 hover:text-gray-500">
+            <div className="mx-1 text-gray-400 hover:text-gray-500">
               <button className="text-2xl" onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
               <div className={`${subMenuState?'block':'hidden'} absolute right-0 top-14 w-48 text-gray-900 bg-white rounded-lg rounded-tr-none`}>
                   <button onClick={(e)=>{changeProfileView()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
@@ -187,8 +188,10 @@ const Sidebar = ({userAwth}) => {
                               )
                             })}
                           </div>
-                          <div className="flex justify-end m-1 -mt-3">
-                            <button onClick={()=>{closeUserSearchBoxAndGoToNextStep()}} className="border px-3 py-1 rounded-sm hover:opacity-90 hover:text-black">Next</button>
+                          <div className="flex justify-end m-1 -mt-3 cursor-pointer">
+                            <div className="rounded-full text-green-800 hover:text-white">
+                              <InputButton name={<MdOutlineNextPlan/>} restClass={"border-0 text-3xl px-0 py-0"} btnType="button" onClickMethod={()=>{closeUserSearchBoxAndGoToNextStep()}}/>
+                            </div>
                           </div>
                         </div>
                         <hr />

@@ -3,7 +3,7 @@ import InputBox from '../form_inputs/InputBox'
 import InputButton from '../form_inputs/InputButton'
 import { ChatHook } from '../../hooks/ChatsHook'
 import { CgProfile } from "react-icons/cg"
-import { CiCircleRemove } from "react-icons/ci"
+import { MdOutlineRemoveCircleOutline } from "react-icons/md"
 import { MdOutlineCloseFullscreen } from "react-icons/md"
 import { toast } from 'react-toastify'
 
@@ -38,17 +38,17 @@ const CreateGroup = ({closeGroup}) => {
     setCloseGroupState(true)
     setTimeout(()=>{
       closeGroup(false);
-    },600);
+    },700);
   }
 
   return (
     <>
-      <div className={`${closeGroupState?"w-36":"w-full"} transition-all duration-1000 flex flex-col justify-center items-center`}>
+      <div className={`${closeGroupState?"w-60":"w-full"} transition-all duration-1000 flex flex-col justify-center items-center`}>
         <div className='my-2'>
           <h1 className='text-2xl'>Create new Group</h1>
         </div>
         <div className='w-full flex justify-end'>
-          <p onClick={()=>{closePage()}} className='mr-10 cursor-pointer'><MdOutlineCloseFullscreen/></p>
+          <p onClick={()=>{closePage()}} className='mr-2 md:mr-10 cursor-pointer'><MdOutlineCloseFullscreen/></p>
         </div>
 
         <form onSubmit={addToTheGroup} className='flex flex-col items-center'>
@@ -68,7 +68,7 @@ const CreateGroup = ({closeGroup}) => {
             {
               userAddedToGroupState.map((user)=>{
                 return (
-                  <div key={user._id} className=''>
+                  <div key={user._id} className='w-full'>
                     <div className='flex justify-start items-center my-2'>
                       <div className="">
                         <div className='w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden'>
@@ -79,13 +79,13 @@ const CreateGroup = ({closeGroup}) => {
                           }    
                         </div>
                       </div>
-                      <div className="mx-2 flex items-center">
-                        <div className="flex flex-col w-[60vw]">
+                      <div className="mx-2 flex items-center w-full">
+                        <div className="flex flex-col w-[60vw] sm:w-[25vw] md:w-[20vw]">
                           <p className="font-medium">{user.name}</p>
                           <p className="text-sm">{user.email}</p>
                         </div>
                         <div className='text-red-800 hover:text-red-600 cursor-pointer'>
-                          <p className='scale-125' onClick={()=>{removeFromAddingToGroup(user)}}><CiCircleRemove/></p>
+                          <p className='scale-125' onClick={()=>{removeFromAddingToGroup(user)}}><MdOutlineRemoveCircleOutline/></p>
                         </div>
                       </div>
                     </div>
