@@ -3,7 +3,7 @@ import { ChatHook } from '../../hooks/ChatsHook';
 import { CgProfile } from "react-icons/cg"
 import { IoPersonAddSharp } from "react-icons/io5"
 
-const UserModel = ({user,isForGroup}) => {
+const UserModel = ({user,isForGroup,closeUserSearchBoxAndGoToNextStep}) => {
 
     const {myAllChatsState,connectWithOneToOneChat,userAddedToGroupState,setUserAddedToGroupState}  = ChatHook();
 
@@ -33,7 +33,7 @@ const UserModel = ({user,isForGroup}) => {
     }
 
     return (
-        <div className={`py-2 px-3 my-0 flex items-center cursor-pointer hover:bg-[rgba(0.5,0.5,0.5,0.3)]`} onClick={()=>{connect(user)}}>
+        <div className={`py-2 px-3 my-0 flex items-center cursor-pointer hover:bg-[rgba(0.5,0.5,0.5,0.3)]`} onClick={()=>{connect(user); !isForGroup && closeUserSearchBoxAndGoToNextStep()}}>
             <div className="w-fit">
                 <div className='w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden'>
                     {

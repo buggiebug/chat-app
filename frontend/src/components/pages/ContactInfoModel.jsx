@@ -15,12 +15,12 @@ const ContactInfoModel = ({props}) => {
   
   return (
     <>
-    <div className='w-full md:border-l-2 h-full overflow-y-scroll'>
+    <div className='w-full lg:border-l-2 h-full overflow-y-scroll'>
         <div className={`sticky top-0 bg-white h-14 text-black flex justify-between items-center px-3`}>
             <div className="w-full basis-full">
                 <div className="w-full flex justify-between text-black font-semibold items-center">
                     <div className="flex justify-center items-center">
-                        <p className="px-0 mr-3 cursor-pointer hover:bg-[rgba(.5,.5,.5,.1)] md:p-2 rounded-full" onClick={()=>{setContactInfoState("hidden")}}><RxCross1/></p>
+                        <p className="p-2 mr-1 cursor-pointer hover:bg-[rgba(.5,.5,.5,.1)] rounded-full" onClick={()=>{setContactInfoState("hidden")}}><RxCross1/></p>
                         <p className="ml-3">Contact Info</p>
                     </div>
                 </div>
@@ -64,8 +64,8 @@ const ContactInfoModel = ({props}) => {
                                 </div>
                                 <div>
                                     <p className='cursor-pointer p-1 rounded-full hover:bg-[rgba(.5,.5,.5,.1)] peer'><HiOutlineDotsVertical/></p>
-                                    <div className="absolute right-0 invisible hover:visible peer-hover:visible -mt-1 mr-5">
-                                        <div className="flex flex-col ring-1 ring-white shadow-lg rounded-sm py-1 text-sm">
+                                    <div className="absolute right-0 visible hover:visible peer-hover:visible -mt-5 mr-5 cursor-pointer">
+                                        <div className="flex flex-col ring-1 ring-white shadow-lg rounded-sm pt-5 text-sm">
                                             <button onClick={()=>{removeUserFromGroup(e)}} className='hover:bg-red-700 text-white'>Remove</button>
                                         </div>
                                     </div>

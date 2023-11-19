@@ -47,8 +47,23 @@ export const createGroupChat = async(data)=>{
     }
 }
 
+
+//  Delete all chats...
+export const deleteAllChats = async(ids)=>{
+    const chats = {chatIds:ids};
+    try{
+        const response = await ax.post("/chats/delete",chats);
+        return await response.data;
+    }catch(err){
+        if(err.message)
+            return await err.response.data
+        else
+            return err;
+    }
+}
+
 //  Get all messages...
-export const OneToOneMessage = async(chatId)=>{
+export const getAllMessages = async(chatId)=>{
     try{
         const response = await ax.get(`/chat/message/${chatId}`);
         return await response.data;
@@ -73,15 +88,14 @@ export const sendMessage = async(messageData)=>{
     }
 }
 
-//  Delete all chats...
-export const deleteAllChats = async(ids)=>{
-    const chats = {chatIds:ids};
-    try{
-        const response = await ax.post("/chats/delete",chats);
+//  Delete all messages of a chat...
+export const deleteAllMessagesOfChat = async(chatId)=>{
+    try {
+        const response = await ax.delete(`/chat/message/${chatId}`);
         return await response.data;
-    }catch(err){
+    } catch (err) {
         if(err.message)
-            return await err.response.data
+            return await err.response.data;
         else
             return err;
     }

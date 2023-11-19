@@ -2,12 +2,11 @@ import React from "react";
 import { ChatHook } from "../../hooks/ChatsHook";
 import { UserHook } from "../../hooks/UserHook";
 import {IoIosNotificationsOutline} from 'react-icons/io'
-import {AiOutlineMore} from 'react-icons/ai'
 import {CgProfile} from 'react-icons/cg'
 
 const UserGrid = ({ userData }) => {
 
-  const {openSelectedChat, selectedUserChatState,getOneToOneMessages,socket} = ChatHook();
+  const {openSelectedChat, selectedUserChatState, getAllOneToOneMessages, socket} = ChatHook();
   const {myInfoState} = UserHook();
 
   const openChat = async(chat)=>{
@@ -17,14 +16,14 @@ const UserGrid = ({ userData }) => {
       await openSelectedChat(chat);
       await socket.emit("joinChat",chat._id);
       //  Refresh chat page with current user chats...
-      getOneToOneMessages(chat._id)
+      getAllOneToOneMessages(chat._id)
     }
   }
 
   return (
     <>
-      <div className={`py-2 px-3 my-0 text-black flex items-center ${(userData !== undefined && selectedUserChatState!== undefined) && selectedUserChatState._id === userData._id?"bg-[rgba(0.5,0.5,0.5,0.5)]":"hover:bg-[rgba(0.5,0.5,0.5,0.3)]"}`}>
-        <div className={` w-[95%] flex items-center cursor-pointer`} onClick={()=>{openChat(userData)}}>
+      <div className={`py-2 px-3 my-0 text-white flex items-center ${(userData !== undefined && selectedUserChatState!== undefined) && selectedUserChatState._id === userData._id?"bg-[rgba(0.5,0.5,0.5,0.5)]":"hover:bg-[rgba(0.5,0.5,0.5,0.3)]"}`}>
+        <div className={`w-full flex items-center cursor-pointer`} onClick={()=>{openChat(userData)}}>
           <div className="w-fit">
             <div className='w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden'>
               {
@@ -48,8 +47,7 @@ const UserGrid = ({ userData }) => {
                 <p className="text-sm">{userData.lastMessageTime}</p>
               </div>
               <div>
-                <p className="text-sm">{userData.latestMessage?
-                  String(userData.latestMessage.message).length<=25?userData.latestMessage.message:String(userData.latestMessage.message).slice(0,25) + '...'
+                <p className="text-sm w-[55vw] sm:w-[18vw] truncate">{userData?.latestMessage ? userData?.latestMessage?.message
                   :"start GapSap ..."}
                 </p>
               </div>
@@ -57,15 +55,10 @@ const UserGrid = ({ userData }) => {
             <div className="relative top-1">
               <p className="text-xl flex justify-center items-center">
                 <IoIosNotificationsOutline/>
-                <span className="text-[10px] relative right-[15px] -top-[1px]">
-                  { userData.notify }
-                </span>
+                <span className="text-[10px] relative right-[15px] -top-[1px]"> </span> {/*Show notification count...*/}
               </p>
             </div>
           </div>
-        </div>
-        <div className={`flex justify-center items-center`}>
-          <p className="text-lg px-1 py-1 rounded-full hover:bg-[rgba(0.5,0.5,0.5,0.5)] cursor-pointer"><AiOutlineMore/></p>
         </div>
       </div>
     </>

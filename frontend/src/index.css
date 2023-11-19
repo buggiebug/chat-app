@@ -9,9 +9,23 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #21aba5;
 }
 
-::-webkit-scrollbar{
+@media screen and (min-width: 1600px){
+  body{
+    background-color: #154f4dde;
+  }
+  #whenIOpeninLargeScreen{
+    width: 80vw;
+    margin: 0px auto;
+  }
+  #messageDrops{
+    min-height: 90.5vh;
+  }
+}
+
+::-webkit-scrollbar {
   width: 0px;
 }
 
@@ -21,25 +35,25 @@ body {
 }
 
 /* This class will work on Firefox... */
-.spin_button_none[type="number"]{
+.spin_button_none[type="number"] {
   -moz-appearance: textfield;
 }
 
-#userGridSkleton{
+#userGridSkleton {
   animation: skleton 1s ease-in infinite;
 }
-#userGridSkleton p{
+#userGridSkleton p {
   animation: skleton 0.5s ease-in infinite;
 }
 
 @keyframes skleton {
-  0%{
+  0% {
     background-color: #ffffff4f;
   }
-  50%{
+  50% {
     background-color: #ffffff66;
   }
-  10%{
+  10% {
     background-color: #ffffff4f;
   }
 }

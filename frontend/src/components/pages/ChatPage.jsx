@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { ChatHook } from "../../hooks/ChatsHook";
-import {AiOutlineMore,AiOutlineArrowLeft} from "react-icons/ai"
+import {AiOutlineMore,AiOutlineArrowLeft,AiOutlineLoading3Quarters} from "react-icons/ai"
 import {RiSendPlaneFill} from "react-icons/ri"
 import {CgProfile} from "react-icons/cg"
+import {MdOutlineDeleteSweep,MdBlockFlipped} from "react-icons/md"
 import InputButton from "../form_inputs/InputButton";
 import InputBox from "../form_inputs/InputBox";
 import Messages from "./Messages";
 import ContactInfoModel from "./ContactInfoModel";
 import { UserHook } from "../../hooks/UserHook";
+import CustomPrompt from "../Models/CustomPrompt";
 
 const ChatPage = ({soc}) => {
   const {socketConnectedState,typingState,isTypingState,setTypingState} = soc;
 
-  const {openSelectedChat,selectedChatState,sendMessage_C,socket,notificationState} = ChatHook();
+  const {socket, loadingState, openSelectedChat, selectedChatState, sendMessage_C, deleteAllMessagesFromChat, notificationState} = ChatHook();
   const {myInfoState} = UserHook();
+
+  //  Open Sub menu...
+  const [subMenuState,setSubMenuState] = useState(false);
+  const showSubMenuButton = ()=>{
+    if(subMenuState)
+      setSubMenuState(false);
+    else
+      setSubMenuState(true);
+  }
 
   const [contactInfoState,setContactInfoState] = useState("hidden")
   //  Show contact info model...
@@ -66,11 +77,17 @@ const ChatPage = ({soc}) => {
     e.target.reset();
   }
 
+  //  Delete messages by using chat id...
+  const clearChatHistory = async(chat)=>{
+    await deleteAllMessagesFromChat(chat._id);
+    setSubMenuState(false)
+  }
+
   return (
     <>
       <div className={`h-[100vh] ${contactInfoState==="visible"?"flex justify-between":""}`}>
         {selectedChatState!==undefined?
-        <div className={`h-full ${contactInfoState==="visible"?" hidden md:flex flex-col justify-between w-0 basis-[0%] lg:w-auto lg:basis-[60%]":"basis-full"}`}>
+        <div className={`h-full ${contactInfoState==="visible"?"hidden lg:flex flex-col justify-between w-0 basis-[0%] lg:w-auto lg:basis-[60%]":"basis-full"} flex flex-col justify-between`}>
           {/* Chats NavBar */}
             <div className={`sticky top-0 bg-white h-14 text-black flex justify-between items-center px-1 sm:px-3`}>
               <div className="w-full flex items-center basis-full">
@@ -98,17 +115,38 @@ const ChatPage = ({soc}) => {
               </div>
               <div className="flex items-center justify-between basis-[20%]">
                 <p></p>
-                <p className="font-extrabold text-xl hover:bg-[rgba(0.5,0.5,0.5,0.1)] rounded-full p-2 cursor-pointer"><AiOutlineMore/></p>
+                <p onClick={showSubMenuButton} className="font-extrabold text-xl hover:bg-[rgba(0.5,0.5,0.5,0.1)] rounded-full p-2 cursor-pointer"><AiOutlineMore/></p>
+                {/* Sub menus... */}
+                <div className="absolute top-0 -right-1 mx-1 text-gray-400 hover:text-gray-500">
+                  <div className={`${subMenuState?'block':'hidden'} absolute right-0 top-14 w-32 text-gray-900 bg-white rounded-lg rounded-tr-none`}>
+                      <button onClick={()=>{clearChatHistory(selectedChatState)}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                        <span className="text-lg"><MdOutlineDeleteSweep/></span>
+                        <span className="relative left-2">Clear Chat</span>
+                      </button>
+                      <button type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                        <span className=""><MdBlockFlipped/></span>
+                        <span className="relative left-3">Block</span>
+                      </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className={`h-[80vh] p-3 overflow-y-scroll`}>
+            {/* Messages drops here... */}
+            <div className={`p-3 overflow-y-scroll min-h-[80vh]`} id="messageDrops">
+              {
+                loadingState.loading===true && loadingState.loadingPath==="delete_messages" ?
+                  <div className="h-full flex justify-center items-center text-3xl animate-spin duration-1000"><AiOutlineLoading3Quarters/></div>
+                :<></>
+              }
               <Messages/>
+              <CustomPrompt info={{message:"Delete this"}}/> {/* // TODO */}
             </div>
             
-            <div className="bg-transparent">
-              <div className="sticky bottom-0 bg-transparent py-2 h-20 text-black flex justify-between items-center px-3">
-                <div className="w-full h-full overflow-hidden">
+            {/* Send messages... */}
+            <div className="bg-[#154f4dde]">
+              <div className="sticky bottom-0 bg-transparent py-2 h-16 text-black flex justify-between items-center px-3">
+                <div className="w-full h-full overflow-hidden flex items-center">
                     <div className="w-full text-black font-semibold">
                       {/* {isTypingState && !typingState?<div>Loading..</div>:""} */}
                       <div className="w-full flex justify-between items-center">
@@ -116,8 +154,8 @@ const ChatPage = ({soc}) => {
                           <div className="hidden">
                             <InputBox onChange={onChangeMessage} label={" "} name={"userId"} placeHolder={" "} type={"hidden"}/>
                           </div>
-                          <InputBox onChange={onChangeMessage} label={" "} name={"message"} placeHolder={"Type a message"} type={"text"} restClass={"w-full rounded-full focus:bg-white border-none focus:border-transparent"}/>
-                          <InputButton name={<RiSendPlaneFill/>} restClass={"mb-2 text-2xl text-white"} loading={false}/>
+                            <InputBox onChange={onChangeMessage} label={" "} name={"message"} placeHolder={"Type a message"} type={"text"} restClass={"w-full rounded-full focus:bg-white border-none focus:border-transparent"} autoComplete="off"/>
+                            <InputButton name={<RiSendPlaneFill/>} restClass={"mb-2 text-2xl text-white border-0"} loading={false}/>
                         </form>
                       </div>
                     </div>
@@ -131,7 +169,7 @@ const ChatPage = ({soc}) => {
 
         {/* Contact info model... */}
         {selectedChatState!==undefined?
-          <div className={`${contactInfoState} md:visible md:basis-full lg:basis-[40%]  ${contactInfoState==="visible"?"basis-[100%]":"basis-[0%]"}`}>
+          <div className={`${contactInfoState} md:visible md:basis-full lg:basis-[40%] ${contactInfoState==="visible"?"basis-[100%]":"basis-[0%]"}`}>
             <ContactInfoModel props={{setContactInfoState,selectedChatState,myInfoState}}/>
           </div>:""
         }

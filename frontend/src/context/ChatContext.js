@@ -1,5 +1,5 @@
 import { React, createContext, useState } from "react";
-import { getAllChats, createOneToOneChat, OneToOneMessage, sendMessage, deleteAllChats,createGroupChat } from "../api/ChatApi";
+import { getAllChats, createOneToOneChat, getAllMessages, sendMessage, deleteAllChats,createGroupChat, deleteAllMessagesOfChat } from "../api/ChatApi";
 import { toast } from "react-toastify";
 
 import { io } from "socket.io-client";
@@ -35,15 +35,13 @@ function ChatContext({ children }) {
 
   //  Open Selected Chat...
   const openSelectedChat = (e) => {
-    console.log("Chat : ",e);
+    // console.log("Chat : ",e);
     setSelectedUserChatState(e);
     setSelectedChatState(e);
   };
 
   //  Create OneToOne Chat...
   const connectWithOneToOneChat = async(userId)=>{
-    console.log(userId);
-    console.log(myAllChatsState);
     setLoadingState({ loading: true, loadingPath: "oneToOneChat" });
     const res = await createOneToOneChat(userId);
     if (res.success) {
@@ -60,9 +58,9 @@ function ChatContext({ children }) {
   }
 
   //  Get all messages...
-  const getOneToOneMessages = async (chatId) => {
+  const getAllOneToOneMessages = async (chatId) => {
     setLoadingState({ loading: true, loadingPath: "chatBox" });
-    const res = await OneToOneMessage(chatId);
+    const res = await getAllMessages(chatId);
     if (res.success) {
       setLoadingState({ loading: false, loadingPath: "" });
       setOneToOneMessagesState(res.message);
@@ -122,6 +120,20 @@ function ChatContext({ children }) {
     setLoadingState({ loading: false, loadingPath: "" });
   }
 
+  //  Delete all messages of a chat...
+  const deleteAllMessagesFromChat = async(chatId)=>{
+    setLoadingState({ loading: true, loadingPath: "delete_messages" });
+    const res = await deleteAllMessagesOfChat(chatId);
+    if(res.success){
+      setOneToOneMessagesState([]);
+      setLoadingState({loading:false,loadingPath:""});
+      toast.success(res.message);
+      return true;
+    }
+    toast.info(res.message);
+    setLoadingState({loading:false,loadingPath:""});
+  }
+
   return (
     <CreateChatContext.Provider
       value={{
@@ -135,7 +147,7 @@ function ChatContext({ children }) {
         connectWithOneToOneChat,
         oneToOneMessagesState,
         setOneToOneMessagesState,
-        getOneToOneMessages,
+        getAllOneToOneMessages,
         sendMessage_C,
         notificationState,
         setNotificationState,
@@ -143,7 +155,8 @@ function ChatContext({ children }) {
         userAddedToGroupState,
         setUserAddedToGroupState,
         removeFromAddingToGroup,
-        createNewGroupChat
+        createNewGroupChat,
+        deleteAllMessagesFromChat
       }}
     >
       {children}

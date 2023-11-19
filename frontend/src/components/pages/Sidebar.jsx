@@ -11,7 +11,7 @@ import {RiDeleteBin5Line} from "react-icons/ri"
 // import {IoPersonAddSharp} from "react-icons/io5"
 import {MdOutlineNextPlan,MdOutlineRemoveCircleOutline} from "react-icons/md"
 
-import {ProfileSvg,SettingSvg} from '../utils/SvgCollection';
+import {ProfileSvg} from '../utils/SvgCollection';
 import { UserHook } from "../../hooks/UserHook";
 import SearchUserModel from "../Models/SearchUserModel";
 import MyProfile from "./MyProfile";
@@ -44,11 +44,6 @@ const Sidebar = ({userAwth}) => {
       setSubMenuState(false);
     else
       setSubMenuState(true);
-  }
-
-  //  Dummy function..
-  const onClick = (e)=>{
-    console.log(e)
   }
 
   //  Delete all chats...
@@ -136,21 +131,17 @@ const Sidebar = ({userAwth}) => {
             <div className="mx-1 text-gray-400 hover:text-gray-500">
               <button className="text-2xl" onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
               <div className={`${subMenuState?'block':'hidden'} absolute right-0 top-14 w-48 text-gray-900 bg-white rounded-lg rounded-tr-none`}>
-                  <button onClick={(e)=>{changeProfileView()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                  <button onClick={()=>{changeProfileView()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <ProfileSvg/>
                     <span>Profile</span>
                   </button>
-                  <button onClick={(e)=>{openCreateGroup()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                  <button onClick={()=>{openCreateGroup()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <HiUserGroup/>
                     <span className="relative left-2">New Group</span>
                   </button>
                   <button onClick={()=>{deleteAllChats()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <RiDeleteBin5Line/>
                     <span className="relative left-2">Delete All Chats</span>
-                  </button>
-                  <button onClick={(e)=>{onClick(e)}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 hover:bg-gray-100 hover:rounded-b-lg hover:text-blue-700">
-                    <SettingSvg/>
-                     <span>Settings</span>
                   </button>
                   <button onClick={()=>{logoutUser()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 hover:bg-gray-100 hover:rounded-b-lg hover:text-blue-700">
                     <BiLogOutCircle/>
@@ -198,14 +189,14 @@ const Sidebar = ({userAwth}) => {
                         {
                           // This is for group chat...
                           searchedUsersState?.map((e)=>{
-                            return <SearchUserModel key={e._id} user={e} isForGroup={viewCreateGroupState}/>
+                            return <SearchUserModel key={e._id} user={e} isForGroup={viewCreateGroupState} closeUserSearchBoxAndGoToNextStep={closeUserSearchBoxAndGoToNextStep}/>
                           })
                         }
                       </>
                       :
                       // This is for create direct chat [oneToOneChat]...
                       searchedUsersState?.map((e)=>{
-                        return <SearchUserModel key={e._id} user={e} isForGroup={viewCreateGroupState}/>
+                        return <SearchUserModel key={e._id} user={e} isForGroup={viewCreateGroupState} closeUserSearchBoxAndGoToNextStep={closeUserSearchBoxAndGoToNextStep}/>
                       })
                     }
                   </>

@@ -6,19 +6,19 @@ let selectedChatCompare;
 
 const Messages = () => {
 
-  const {loadingState,selectedChatState,oneToOneMessagesState,setOneToOneMessagesState,getOneToOneMessages,socket,notificationState,setNotificationState} = ChatHook();  
+  const {loadingState,selectedChatState,oneToOneMessagesState,setOneToOneMessagesState,getAllOneToOneMessages,socket,notificationState,setNotificationState} = ChatHook();  
   const {myInfoState} = UserHook();  
 
   const ref = useRef(null);
 
   useEffect(()=>{
     if(selectedChatState!==undefined)
-      getOneToOneMessages(selectedChatState._id);
+      getAllOneToOneMessages(selectedChatState._id);
   },[selectedChatState])
 
   useEffect(()=>{
     if(selectedChatState!==undefined)
-      getOneToOneMessages(selectedChatState._id);
+      getAllOneToOneMessages(selectedChatState._id);
 
     if(oneToOneMessagesState.length){
         ref.current?.scrollIntoView({behavior:"smooth",block:"end"})
