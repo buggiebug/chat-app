@@ -51,6 +51,10 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: "online",
     },
+    blockedUsers: {
+      type: Array,
+      default: [],
+    },
     // completedSteps:{ // Implement it...
     //   type: Number,
     //   default: 2

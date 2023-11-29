@@ -16,7 +16,7 @@ const ContactInfoModel = ({props}) => {
   return (
     <>
     <div className='w-full lg:border-l-2 h-full overflow-y-scroll'>
-        <div className={`sticky top-0 bg-white h-14 text-black flex justify-between items-center px-3`}>
+        <div className={`sticky top-0 bg-white min-h-[56px] h-14 text-black flex justify-between items-center px-3`}>
             <div className="w-full basis-full">
                 <div className="w-full flex justify-between text-black font-semibold items-center">
                     <div className="flex justify-center items-center">
@@ -32,7 +32,7 @@ const ContactInfoModel = ({props}) => {
                     {
                         !selectedChatState.isGroupChat ? myInfoState._id !== selectedChatState.users[1]._id ?
                         (selectedChatState.users[1]?.profilePicture && selectedChatState.users[1]?.profilePicture !== ' ')
-                        ?   <img src={`data:image/*;base64, ${selectedChatState.users[1]?.profilePicture}`} alt={`lol`}/>
+                        ?   <img src={`data:image/*;base64, ${selectedChatState.users[1]?.profilePicture}`} alt={`img`}/>
                         :   <span className='text-3xl'><CgProfile/></span>
                         :   selectedChatState.users[0]?.profilePicture && selectedChatState.users[0]?.profilePicture !== ' '
                         ?   <img src={`data:image/*;base64, ${selectedChatState.users[0]?.profilePicture}`} alt={`img`} />

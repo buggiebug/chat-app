@@ -6,6 +6,7 @@ import {
   getUser,
   uploadProfile,
   searchUser,
+  blockSingleUser,
 } from "../api/UserApi";
 import { toast } from "react-toastify";
 
@@ -101,6 +102,19 @@ function UserContext(props) {
     setLoadingState({ loading: false, loadingPath: "" });
   };
 
+  //  Block single user...
+  const blockSingleUserById = async (id) => {
+    setLoadingState({ loading: true, loadingPath: "block_user" });
+    const res = await blockSingleUser(id);
+    if (res.success) {
+      setLoadingState({ loading: false, loadingPath: "" });
+      toast.info(res.message);
+      return true;
+    }
+    toast.warn(res.message);
+    setLoadingState({ loading: false, loadingPath: "" });
+  };
+
   //
   const [searchUserKeywordState, setSearchUserKeywordState] = useState("");
 
@@ -118,6 +132,7 @@ function UserContext(props) {
         setSearchUserKeywordState,
         searchUserByNameEmail,
         searchedUsersState,
+        blockSingleUserById
       }}
     >
       {props.children}

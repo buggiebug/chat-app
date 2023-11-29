@@ -122,14 +122,14 @@ const Sidebar = ({userAwth}) => {
         <div className="">
 
           {/* Sidebar's navbar */}
-          <div className="sticky top-0 bg-white h-14 text-black flex justify-between items-center lg:pl-3 pl-1">
+          <div className="sticky top-0 min-h-[56px] bg-white h-14 text-black flex justify-between items-center lg:pl-3 pl-1">
             {/* Search Bar... */}
             <div className="w-full">
               <SearchBar someRef={closeRef}/>
             </div>
             {/* Sub menus... */}
             <div className="mx-1 text-gray-400 hover:text-gray-500">
-              <button className="text-2xl" onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
+              <button className={`text-2xl ${subMenuState?"rotate-90 scale-110":"rotate-0"} duration-1000`} onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
               <div className={`${subMenuState?'block':'hidden'} absolute right-0 top-14 w-48 text-gray-900 bg-white rounded-lg rounded-tr-none`}>
                   <button onClick={()=>{changeProfileView()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <ProfileSvg/>

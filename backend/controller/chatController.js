@@ -2,20 +2,22 @@ const catchAsynError = require("../middleware/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const ObjHelper = require("../utils/helper");
 const ChatModel = require("../models/chatModel");
-const UserModel = require("../models/userModel");
 const path = require("path");
 const fs = require("fs");
 
 
 //  Get file data via using filename if available else return empty string...
 const getFile = async(fileName)=>{
-  const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
-  if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
-    const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
-    return profileData;
-  }else{
-    return " ";
+  if(fileName!==null){
+    const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
+    if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
+      const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
+      return profileData;
+    }else{
+      return " ";
+    }
   }
+  return " ";
 }
 
 //  It takes array of chats and then extract users info and update their profile path with buffer image...
@@ -84,7 +86,7 @@ exports.fetchAllChat = catchAsynError(async (req, res, next) => {
       users: { $elemMatch: { $eq: req.user._id } },
     })
       .populate("users", "name email profilePicture")
-      .populate("latestMessage")
+      .populate({path:"latestMessage",match: { isDeleted: { $ne: true } }})
       .sort({ updatedAt: -1 });
   
     const updatedData = await updatedChat(chats);  
@@ -125,7 +127,7 @@ exports.createGroupChat = catchAsynError(async (req, res, next) => {
       users: { $elemMatch: { $eq: req.user._id } }
     })
     .populate("users", "name email profilePicture")
-    .populate("latestMessage")
+    .populate({path:"latestMessage",match: { isDeleted: { $ne: true } }})
     .populate({ path: "groupAdmin", select: "name email" })
     .sort({ updatedAt: -1 });
     const updatedData = await updatedChat(chats);  
@@ -158,7 +160,7 @@ exports.renameGroupChat = catchAsynError(async (req, res, next) => {
       { new: true }
     )
       .populate({ path: "users", select: "name email" })
-      .populate("latestMessage")
+      .populate({path:"latestMessage",match: { isDeleted: { $ne: true } }})
       .populate({ path: "groupAdmin", select: "name email" });
     if (!group) return next(new ErrorHandler("Group not found.", 401));
     else
@@ -198,7 +200,7 @@ exports.addToGroupChat = catchAsynError(async (req, res, next) => {
       { new: true }
     )
       .populate({ path: "users", select: "name email" })
-      .populate("latestMessage")
+      .populate({path:"latestMessage",match: { isDeleted: { $ne: true } }})
       .populate({ path: "groupAdmin", select: "name email" });
     return res.status(200).json({ success: true, group });
   } catch (err) {
@@ -220,7 +222,7 @@ exports.removeFromGroupChat = catchAsynError(async (req, res, next) => {
       { new: true }
     )
       .populate({ path: "users", select: "name email" })
-      .populate("latestMessage")
+      .populate({path:"latestMessage",match: { isDeleted: { $ne: true } }})
       .populate({ path: "groupAdmin", select: "name email" });
     if (!group) return next(new ErrorHandler("Group not found.", 401));
     else return res.status(200).json({ success: true, group });
@@ -250,7 +252,7 @@ exports.deleteAllChats = catchAsynError(async (req, res, next) => {
         users: { $elemMatch: { $eq: req.user._id } },
       })
         .populate("users", "name email")
-        .populate("latestMessage")
+        .populate({path:"latestMessage",match: { isDeleted: { $ne: true } }})
         .sort({ updatedAt: -1 });
       return res.status(200).json({
         success: true,

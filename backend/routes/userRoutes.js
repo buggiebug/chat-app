@@ -12,6 +12,7 @@ const {
   uploadProfilePicture,
   forgotUserPassword,
   updateForgotPassword,
+  blockSingleUser
 } = require("../controller/userController");
 
 //  Upload profile picture...
@@ -39,4 +40,5 @@ userRoute
   .route("/user/forgot/update-password/:tokenId")
   .post(updateForgotPassword);
 
+userRoute.route("/user/:id").post(isAuthenticatedUser,blockSingleUser);  
 module.exports = userRoute;

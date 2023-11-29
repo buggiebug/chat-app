@@ -1,6 +1,8 @@
 import React, {useEffect,useRef } from 'react'
 import { ChatHook } from '../../hooks/ChatsHook';
 import { UserHook } from '../../hooks/UserHook';
+import {CgProfile} from "react-icons/cg";
+
 
 let selectedChatCompare;
 
@@ -11,10 +13,11 @@ const Messages = () => {
 
   const ref = useRef(null);
 
-  useEffect(()=>{
-    if(selectedChatState!==undefined)
-      getAllOneToOneMessages(selectedChatState._id);
-  },[selectedChatState])
+  // useEffect(()=>{
+  //   if(selectedChatState!==undefined)
+  //     getAllOneToOneMessages(selectedChatState._id);
+  // },[selectedChatState])
+
 
   useEffect(()=>{
     if(selectedChatState!==undefined)
@@ -55,17 +58,42 @@ const Messages = () => {
                     {/* Receiver's message... */}
                     <div className={`${e.sender._id===myInfoState._id?'w-[0px]':'w-full'}`}>
                         {
-                            e.sender._id!==myInfoState._id?<p className='w-fit bg-white text-black p-2 rounded-2xl rounded-tl-none max-w-[90%] md:max-w-[50%]'>
+                          e.sender._id!==myInfoState._id?
+                          <div className='flex items-start justify-center w-fit max-w-[90%] md:max-w-[50%]'>
+                            {/* This is for image... */}
+                            {e.sender._id!==myInfoState._id && selectedChatState.isGroupChat===false &&
+                              selectedChatState.users?.[1]?.profilePicture!==" "?
+                              selectedChatState.users?.[1]._id=== e.sender?._id?
+                              <img src={`data:image/*;base64, ${selectedChatState.users?.[1]?.profilePicture}`} alt={`img`} className='min-w-[30px] min-h-[30px] w-[30px] h-[30px] rounded-full'/>
+                              :<img src={`data:image/*;base64, ${selectedChatState.users?.[0]?.profilePicture}`} alt={`img`} className='min-w-[30px] min-h-[30px] w-[30px] h-[30px] rounded-full'/>
+                              :<span className='text-3xl'><CgProfile/></span>
+                            }
+                            <p className='bg-white text-black py-1 px-2 ml-2 rounded-2xl rounded-tl-none flex flex-col items-end'>
                               {e.message}
-                            </p>:""
+                              <span className='mt-1 text-[10px] ml-3'>{new Date(e.createdAt).toLocaleDateString() !== new Date().toLocaleDateString() ? new Date(e.createdAt).toLocaleString() : new Date(e.createdAt).toLocaleTimeString()}</span>
+                            </p>
+                          </div>:""
                         }
                     </div>
                     {/* Sender's message... */}
                     <div className={`${myInfoState._id!==e.sender._id?'w-[0px]':'w-full'} flex justify-end`}>
                         {
-                            myInfoState._id===e.sender._id?<p className='w-fit bg-black text-white p-2 rounded-2xl rounded-br-none max-w-[90%] md:max-w-[50%]'>
-                            {e.message}
-                        </p>:""
+                          myInfoState._id===e.sender._id?
+                          <div className='flex items-end justify-center w-fit max-w-[90%] md:max-w-[50%]'>
+                            <p className='bg-black text-white py-1 px-2 mr-2 rounded-2xl rounded-br-none flex flex-col items-end'>
+                              {e.message}
+                              <span className='mt-1 text-[10px] ml-3'>{new Date(e.createdAt).toLocaleDateString() !== new Date().toLocaleDateString() ? new Date(e.createdAt).toLocaleString() : new Date(e.createdAt).toLocaleTimeString()}</span>
+                            </p>
+
+                            {/* This is for image... */}
+                            {e.sender._id===myInfoState._id && selectedChatState.isGroupChat===false &&
+                              selectedChatState.users?.[1]?.profilePicture!==" "?
+                              selectedChatState.users?.[1]._id=== e.sender?._id?
+                              <img src={`data:image/*;base64, ${selectedChatState.users?.[1]?.profilePicture}`} alt={`img`} className='min-w-[30px] min-h-[30px] w-[30px] h-[30px] rounded-full'/>
+                              :<img src={`data:image/*;base64, ${selectedChatState.users?.[0]?.profilePicture}`} alt={`img`} className='min-w-[30px] min-h-[30px] w-[30px] h-[30px] rounded-full'/>
+                              :<span className='text-3xl'><CgProfile/></span>
+                            }
+                          </div>:""
                         }
                     </div> 
                 </div>

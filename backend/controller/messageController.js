@@ -5,6 +5,7 @@ const MessageModel = require("../models/messageModel");
 const ChatModel = require("../models/chatModel");
 const UserModel = require("../models/userModel");
 
+
 //  New message...
 exports.sendOneToOneMessage = catchAsynError(async (req, res, next) => {
   const { chatId, message } = req.body;
@@ -23,18 +24,17 @@ exports.sendOneToOneMessage = catchAsynError(async (req, res, next) => {
     chatId,
   };
   try {
-    let message = await MessageModel.create(newMessage);
-
+    const newData = await MessageModel.create(newMessage);
+    let message = await MessageModel.findById(newData._id);
     message = await message.populate("sender", "name email");
     message = await message.populate("chatId");
 
-    message = await UserModel.populate(message, {
-      path: "chatId.users",
-      select: "name email",
-    });
+    // message = await UserModel.populate(message, {
+    //   path: "chatId.users",
+    //   select: "name email profilePicture",
+    // });
 
     await ChatModel.findByIdAndUpdate(chatId, { latestMessage: message });
-
     return res.status(200).json({ success: true, message });
   } catch (err) {
     return next(new ErrorHandler(err.message, 400));
@@ -53,11 +53,10 @@ exports.getAllMessages = catchAsynError(async (req, res, next) => {
       $and: [{ chatId }, { isAllMessageDeleted: false }],
     })
       .populate("sender", "name email")
-      .populate("chatId");
 
     // message = await UserModel.populate(message, {
     //     path: "chatId.users",
-    //     select: "name email",
+    //     select: "name email profilePicture",
     // });
 
     return res.status(200).json({ success: true, message });
@@ -77,7 +76,7 @@ exports.deleteMessageForAllByChatId = catchAsynError(async (req, res, next) => {
     const totalMessages = await MessageModel.find({$and:[{chatId},{isAllMessageDeleted:false}]}).countDocuments();
     await MessageModel.updateMany({
       $and: [{ chatId }, { isAllMessageDeleted: false }],
-    },{isAllMessageDeleted:true});
+    },{isAllMessageDeleted:true,isDeleted:true});
     return res.status(200).json({ success: true, message: `${totalMessages}, messages are deleted.` });
   } catch (err) {
     return next(new ErrorHandler(err.message, 400));

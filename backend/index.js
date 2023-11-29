@@ -9,7 +9,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
-const { Server } = require("socket.io");
+const socketConnect = require("./services/socketConnect");
 app.use(express.json());
 
 app.use(
@@ -47,61 +47,8 @@ const server = app.listen(PORT, () => {
   console.log(`server running at http://${HOST}:${PORT}`);
 });
 
-//  Connect Socket io with client...
-const io = new Server(server, {
-  pingTimeout: 60000,
-  cors: {
-    origin: CLIENT_URL,
-  },
-});
-
-io.on("connection", (socket) => {
-  // console.log("Connected with io.")
-
-  //  Connect io with client...
-  socket.on("setup", (userData) => {
-    socket.join(userData._id);
-    socket.emit("connected");
-    // console.log(userData)
-  });
-
-  // connect with chat...
-  socket.on("joinChat", (chatId) => {
-    // console.log('User joind ',chatId);
-    socket.join(chatId);
-  });
-
-  //  on new message...
-  socket.on("newMessage", (newMessageReceived) => {
-    // console.log(newMessageReceived);
-    var chat = newMessageReceived.chatId;
-    // console.log(newMessageReceived)
-    if (!chat.users) return console.log("Chat.user is not defined.");
-
-    //  don't show the message to sender only for other user's message will be visible...
-    chat.users.forEach((user) => {
-      if (user._id === newMessageReceived.sender._id) return;
-      else socket.in(user._id).emit("messageReceived", newMessageReceived);
-    });
-
-  });
-  
-  //  Typing...
-  socket.on("typing", (chatId) =>{
-    // console.log("typing : ",chatId);
-    socket.in(chatId).emit("typing");
-  });
-  socket.on("stopTyping", (chatId) => {
-    // console.log("Stop typing : ",chatId);
-    socket.in(chatId).emit("stopTyping");
-  });
-
-  socket.off("setup",(userData)=>{
-    // console.log('Disconnected : ',userData);
-    socket.leave(userData._id)
-  });
-
-});
+//  connect Socket...
+socketConnect(server);
 
 //  Errors...
 app.use(require("./middleware/errors"));

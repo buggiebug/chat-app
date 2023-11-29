@@ -94,3 +94,17 @@ export const searchUser = async (keyword) => {
     }
   }
 };
+
+// Block single user...
+export const blockSingleUser = async (id) => {
+  try {
+    const response = await ax.post(`/user/${id}`);
+    return await response.data;
+  } catch (err) {
+    if (err.response) {
+      return await err.response.data;
+    } else {
+      return err;
+    }
+  }
+};

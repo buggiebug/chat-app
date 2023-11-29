@@ -10,13 +10,16 @@ const path = require("path");
 
 //  Get file...
 const getFile = async(fileName)=>{
-  const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
-  if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
-    const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
-    return profileData;
-  }else{
-    return " ";
+  if(fileName!==null){
+    const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
+    if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
+      const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
+      return profileData;
+    }else{
+      return " ";
+    }
   }
+  return " ";
 }
 
 //  Create a new user...
@@ -347,11 +350,36 @@ exports.getAllUsers = catchAsynError(async (req, res, next) => {
   );
   const allUsers = await searchFeature;
 
+  const blockedUsers = new Set(req.user?.blockedUsers);
+  const extractedUser = allUsers.filter((e)=> !blockedUsers.has(e._id?.toString()))
+
   //  Update profile pictures to base64 if profile picture...
-  for(let user of allUsers){
+  for(let user of extractedUser){
     // console.log(await getFile(user.profilePicture));
     user.profilePicture = await getFile(user.profilePicture);
   }
 
-  return res.status(200).json({ success: true, allUsers });
+  return res.status(200).json({ success: true, allUsers:extractedUser });
+});
+
+//  Block a user...
+exports.blockSingleUser = catchAsynError(async(req,res,next)=>{
+  const {id} = req.params;
+  const objHelper = new ObjHelper();
+  if(!objHelper.isValidMongoId(id))
+    return next(new ErrorHandler("Invalid I'd", 401));
+  try {
+    const isUserExist = await UserModel.findById({_id:id});
+    if(!isUserExist)
+      return next(new ErrorHandler("User not found.", 401));
+    const blockUser = await UserModel.findById(req.user?._id);
+    if(!blockUser?.blockedUsers.includes(id)){
+      blockUser?.blockedUsers.push(id);
+      await blockUser.save({validateBeforeSave:true});
+      return res.status(200).json({success:true,message:`${isUserExist.name} is blocked.`});
+    }
+    return res.status(200).json({success:true,message:`${isUserExist.name} is already blocked.`});
+  } catch (err) {
+    return next(new ErrorHandler(err.message, 400));
+  }
 });
