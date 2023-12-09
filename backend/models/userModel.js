@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema(
     blockedUsers: {
       type: Array,
       default: [],
+      select: false,
     },
     // completedSteps:{ // Implement it...
     //   type: Number,

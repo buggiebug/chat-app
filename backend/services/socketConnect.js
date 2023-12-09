@@ -1,9 +1,9 @@
 const { Server } = require("socket.io");
 const CLIENT_URL = process.env.CLIENT_URL;
 
-module.exports = function connectSoacket(server) {
+module.exports = function connectSoacket(serverInfo) {
   //  Connect Socket io with client...
-  const io = new Server(server, {
+  const io = new Server(serverInfo, {
     pingTimeout: 60*1000,
     cors: {
       origin: CLIENT_URL,
@@ -13,11 +13,14 @@ module.exports = function connectSoacket(server) {
   io.on("connection", (socket) => {
     // console.log("Connected with io.")
 
+    let myInfo = {};
+
     //  Connect io with client...
     socket.on("setup", (userData) => {
+      // console.log("userData: ",userData)
+      myInfo = userData;
       socket.join(userData._id);
       socket.emit("connected");
-      // console.log(userData)
     });
 
     // connect with chat...
@@ -28,6 +31,8 @@ module.exports = function connectSoacket(server) {
 
     //  on new message...
     socket.on("newMessage", (newMessageReceived) => {
+      // console.log(myInfo)
+      // console.log(newMessageReceived)
       var chat = newMessageReceived.chatId;
       if (!chat.users) return console.log("Chat.user is not defined.");
 

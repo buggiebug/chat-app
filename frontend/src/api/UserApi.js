@@ -96,9 +96,9 @@ export const searchUser = async (keyword) => {
 };
 
 // Block single user...
-export const blockSingleUser = async (id) => {
+export const blockUnblockUserApi = async (state,data) => {
   try {
-    const response = await ax.post(`/user/${id}`);
+    const response = await ax.post(`/user/${state}`,data);
     return await response.data;
   } catch (err) {
     if (err.response) {

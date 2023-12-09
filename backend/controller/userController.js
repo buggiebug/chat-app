@@ -7,6 +7,7 @@ const UserModel = require("../models/userModel");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const ChatModel = require("../models/chatModel");
 
 //  Get file...
 const getFile = async(fileName)=>{
@@ -218,6 +219,7 @@ exports.getUserDetails = catchAsynError(async (req, res, next) => {
         email: user.email,
         activeStatus:user.activeStatus,
         profilePicture: profilePicture,
+        blockedUsers : user.blockedUsers
       }
       return res.status(200).json({ success: true, user:jsonData });
     }else
@@ -229,32 +231,28 @@ exports.getUserDetails = catchAsynError(async (req, res, next) => {
 
 //  Upload profile picture...
 exports.uploadProfilePicture = catchAsynError(async (req, res, next) => {
+  if (!req.file)
+    return next(new ErrorHandler("Please select a picture.", 400));
   try {
-    if (!req.file)
-      return next(new ErrorHandler("Please select a picture.", 400));
     const userData = await UserModel.findByIdAndUpdate(
       { _id: req.user._id },
       { profilePicture:req.file.filename }
     );
-    try {
-      const profilePicture = await getFile(userData.profilePicture);
-      if(profilePicture){
-        const jsonData = {
-          _id : userData._id,
-          name: userData.name,
-          email: userData.email,
-          activeStatus:userData.activeStatus,
-          profilePicture: profilePicture,
-        }
-        return res
-          .status(200)
-          .json({ success: true, message: "Profile picture updated.",user:jsonData });
+    const profilePicture = await getFile(req.file.filename);
+    if(profilePicture){
+      const jsonData = {
+        _id : userData._id,
+        name: userData.name,
+        email: userData.email,
+        activeStatus:userData.activeStatus,
+        profilePicture: profilePicture,
       }
-    } catch (err) {
-      return next(new ErrorHandler(err.message,400))
+      return res
+        .status(200)
+        .json({ success: true, message: "Profile picture updated.",user:jsonData });
     }
   } catch (err) {
-    return next(new ErrorHandler(err.message, 400));
+    return next(new ErrorHandler(err.message,400))
   }
 });
 
@@ -350,36 +348,74 @@ exports.getAllUsers = catchAsynError(async (req, res, next) => {
   );
   const allUsers = await searchFeature;
 
-  const blockedUsers = new Set(req.user?.blockedUsers);
-  const extractedUser = allUsers.filter((e)=> !blockedUsers.has(e._id?.toString()))
+  //  drop the user from search list if the current user id exist in user blocklist...
+  const extractedUser = JSON.parse(JSON.stringify(allUsers.filter((e)=> !e.blockedUsers.includes(req.user._id))));
 
   //  Update profile pictures to base64 if profile picture...
   for(let user of extractedUser){
-    // console.log(await getFile(user.profilePicture));
+    delete user.blockedUsers; //  Remove blockedUsers from the array...
     user.profilePicture = await getFile(user.profilePicture);
   }
 
   return res.status(200).json({ success: true, allUsers:extractedUser });
 });
 
-//  Block a user...
-exports.blockSingleUser = catchAsynError(async(req,res,next)=>{
-  const {id} = req.params;
+//  Block/Unblock a user...
+exports.blockUnblokUser = catchAsynError(async(req,res,next)=>{
+  const {state} = req.params;
+  const {userId,chatId} = req.body
   const objHelper = new ObjHelper();
-  if(!objHelper.isValidMongoId(id))
-    return next(new ErrorHandler("Invalid I'd", 401));
+
+  if(!objHelper.isValidMongoId(userId) || !objHelper.isValidMongoId(chatId))
+    return next(new ErrorHandler("Invalid I'd", 400));
   try {
-    const isUserExist = await UserModel.findById({_id:id});
+    const isUserExist = await UserModel.findById({_id:userId});
     if(!isUserExist)
       return next(new ErrorHandler("User not found.", 401));
-    const blockUser = await UserModel.findById(req.user?._id);
-    if(!blockUser?.blockedUsers.includes(id)){
-      blockUser?.blockedUsers.push(id);
-      await blockUser.save({validateBeforeSave:true});
+
+    const isChat = await ChatModel.findOne({_id:chatId}); 
+    if(!isChat)
+      return next(new ErrorHandler("Chat not found.", 401));
+
+    if(isChat && isChat.isGroupChat)  
+      return next(new ErrorHandler("You can't block/unblock anyone in group.", 401));
+
+    const blockedUser = await UserModel.findById(req.user?._id).select("+blockedUsers");
+
+    // Block...
+    if(state==="block" && !blockedUser?.blockedUsers.includes(userId)){
+      blockedUser?.blockedUsers.push(userId);
+      await blockedUser.save({validateBeforeSave:true});
+      isChat.isBlocked = true;
+      await isChat.save({validateBeforeSave:true});
       return res.status(200).json({success:true,message:`${isUserExist.name} is blocked.`});
     }
-    return res.status(200).json({success:true,message:`${isUserExist.name} is already blocked.`});
+    // Unblock...
+    if(state==="unblock" && blockedUser?.blockedUsers.includes(userId)){
+      const user = blockedUser?.blockedUsers?.filter(e => e !== userId );
+      blockedUser.blockedUsers = user;
+      blockedUser.save({validateBeforeSave:true});
+      isChat.isBlocked = false;
+      await isChat.save({validateBeforeSave:true});
+      return res.status(200).json({success:true,message:`${isUserExist.name} is un-blocked.`});
+    }
+    // Rest message...
+    let message;
+    state==="block"?message = `${isUserExist.name} is already blocked.`:message = `${isUserExist.name} is not in block list.`;
+    return res.status(200).json({success:true,message:`${state}: ${message}`});
   } catch (err) {
     return next(new ErrorHandler(err.message, 400));
   }
 });
+
+//  All block list...
+exports.getBlockUserList = catchAsynError(async(req,res,next)=>{
+  const userIds = req.user?.blockedUsers;
+  if(!userIds.length)
+    return next(new ErrorHandler("Block list is empty.",200));
+  const blockedUsers = await UserModel.find({_id:{$in:userIds}})
+  for (let user of blockedUsers){
+    user.profilePicture = await getFile(user.profilePicture);
+  }
+  return res.status(200).json({success:true,blockedUsers})
+})

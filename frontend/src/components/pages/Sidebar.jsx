@@ -4,12 +4,13 @@ import { ChatHook } from "../../hooks/ChatsHook";
 
 import UserGrid from "../Models/UserGrid";
 
+import {HiMiniChatBubbleLeftRight} from "react-icons/hi2"
 import {BiLogOutCircle} from "react-icons/bi"
 import {HiUserGroup} from "react-icons/hi"
 import {CgMenuHotdog,CgProfile} from "react-icons/cg"
 import {RiDeleteBin5Line} from "react-icons/ri"
 // import {IoPersonAddSharp} from "react-icons/io5"
-import {MdOutlineNextPlan,MdOutlineRemoveCircleOutline} from "react-icons/md"
+import {MdOutlineNextPlan,MdOutlineRemoveCircleOutline,MdOutlineBlock} from "react-icons/md"
 
 import {ProfileSvg} from '../utils/SvgCollection';
 import { UserHook } from "../../hooks/UserHook";
@@ -25,8 +26,9 @@ const Sidebar = ({userAwth}) => {
   const navigate = useNavigate();
 
   const { getMyAllChats,myAllChatsState,loadingState, deleteChats, userAddedToGroupState, removeFromAddingToGroup } = ChatHook();
-  const {logoutSubmit, searchUserKeywordState, searchedUsersState} = UserHook();
+  const {confirmState,setConfirmState, promptMessageCall,logoutSubmit, searchUserKeywordState, searchedUsersState} = UserHook();
 
+  const [promptDataState,setPromptDataState] = useState({for:"",chatIds:""});
   useEffect(() => {
     if(userAwth(" userawthtoken") || userAwth("userawthtoken")){
       navigate("/")
@@ -49,7 +51,8 @@ const Sidebar = ({userAwth}) => {
   //  Delete all chats...
   const deleteAllChats = async()=>{
     const chatIds = myAllChatsState?.filter((e)=> e.isGroupChat === false).map((e)=> {return e._id});
-    await deleteChats(chatIds);
+    promptMessageCall(`Do you want to delete chats !`,`Please confirm to clear your chat history.`);
+    setPromptDataState({for:"deleteAllChats",chatIds:chatIds});
     setSubMenuState(false);
   }
   
@@ -94,6 +97,31 @@ const Sidebar = ({userAwth}) => {
     closeRef.current.click();
   }
 
+
+  //  Blocked users...
+  const blockedUsers = ()=>{
+
+  }
+
+
+  //  Close all tabs...
+  const closeAllTabs = ()=>{
+    setViewProfileState(false);
+    setViewCreateGroupState(false);
+    setSubMenuState(false);
+  }
+
+
+  useEffect(()=>{
+    if(confirmState && promptDataState.chatIds && promptDataState.for==="deleteAllChats"){
+      deleteChats(promptDataState.chatIds);
+      setConfirmState(false);
+      setPromptDataState({});
+    }
+    // eslint-disable-next-line
+  },[confirmState])
+
+
   //  Showing users for create group with Image and Name only...
   const UserShow = (user)=>{
     return(
@@ -125,12 +153,21 @@ const Sidebar = ({userAwth}) => {
           <div className="sticky top-0 min-h-[56px] bg-white h-14 text-black flex justify-between items-center lg:pl-3 pl-1">
             {/* Search Bar... */}
             <div className="w-full">
-              <SearchBar someRef={closeRef}/>
+              <SearchBar someRef={{closeRef,viewCreateGroupState}}/>
             </div>
             {/* Sub menus... */}
             <div className="mx-1 text-gray-400 hover:text-gray-500">
               <button className={`text-2xl ${subMenuState?"rotate-90 scale-110":"rotate-0"} duration-1000`} onBlur={()=>{}} onClick={showSubMenuButton}><CgMenuHotdog/></button>
               <div className={`${subMenuState?'block':'hidden'} absolute right-0 top-14 w-48 text-gray-900 bg-white rounded-lg rounded-tr-none`}>
+                  
+                  {
+                  (viewProfileState || viewCreateGroupState) &&  
+                  <button onClick={()=>{closeAllTabs()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                    <HiMiniChatBubbleLeftRight/>
+                    <span className="relative left-2">Chats</span>
+                  </button>
+                  }
+
                   <button onClick={()=>{changeProfileView()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <ProfileSvg/>
                     <span>Profile</span>
@@ -142,6 +179,10 @@ const Sidebar = ({userAwth}) => {
                   <button onClick={()=>{deleteAllChats()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
                     <RiDeleteBin5Line/>
                     <span className="relative left-2">Delete All Chats</span>
+                  </button>
+                  <button onClick={()=>{blockedUsers()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                    <MdOutlineBlock/>
+                    <span className="relative left-2">Blocked Users</span>
                   </button>
                   <button onClick={()=>{logoutUser()}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 hover:bg-gray-100 hover:rounded-b-lg hover:text-blue-700">
                     <BiLogOutCircle/>
@@ -203,7 +244,11 @@ const Sidebar = ({userAwth}) => {
                 : <p className="flex justify-center align-middle">No user found.</p>
               : // {/* Chat History will be here */}
                 !viewCreateGroupState?
-                loadingState.loading === true && loadingState.loadingPath === 'allChats' ? <SkletonModel/> :
+                loadingState.loading && loadingState.loadingPath === 'allChats' ? <SkletonModel/> :
+                myAllChatsState?.length <= 0 ? <div className="mt-10 text-center">
+                  <p>No chat found. <span className="text-3xl">🤷‍♂️</span></p>
+                  <p className="mt-5 text-sm">Search your fav people and <br/> add to start GapSap</p>
+                </div>:
                 myAllChatsState?.map((chat)=>{
                   return <UserGrid key={chat._id} userData={chat}/>
                 })

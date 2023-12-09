@@ -2,7 +2,7 @@ import React, {useEffect,useRef } from 'react'
 import { ChatHook } from '../../hooks/ChatsHook';
 import { UserHook } from '../../hooks/UserHook';
 import {CgProfile} from "react-icons/cg";
-
+import addNotification from 'react-push-notification';
 
 let selectedChatCompare;
 
@@ -36,11 +36,19 @@ const Messages = () => {
   //    check whether the chatId is same or different if different then send notification...
   useEffect(()=>{
     socket.on("messageReceived",(newMessage)=>{
-        if(!selectedChatCompare || selectedChatCompare._id !== newMessage.chatId._id)
+        if(!selectedChatCompare || (selectedChatCompare._id !== newMessage.chatId._id))
         {
           //  send notification...
           if(!notificationState.includes(newMessage)){
+            console.log(newMessage)
             setNotificationState([newMessage,...notificationState]);
+            addNotification({
+              title: `New message from ${newMessage.sender.name}`,
+              message:`Message: ${newMessage?.message} \n\nOpen GapSap to start convertation with ${newMessage.sender.name}`,
+              native: true,
+              duration: 10000,
+              vibrate:500
+            })
           }
         }else{
           setOneToOneMessagesState([...oneToOneMessagesState,newMessage])

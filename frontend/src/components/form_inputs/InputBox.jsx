@@ -1,7 +1,7 @@
-export default function InputBox ({type,name,label,placeHolder,restClass,...rest}){
+export default function InputBox ({type,name,label,placeHolder,restClass,ref,...rest}){
     return (
         <div className="mb-2 flex flex-col-reverse w-full">
-            <input type={type} id={name} name={name} className={`focus:bg-teal-50 border border-teal-700 focus:border-teal-800 focus:text-teal-900 px-3 py-2 rounded-sm w-[100%] outline-none peer ${restClass}`} placeholder={placeHolder} {...rest}/>
+            <input type={type} id={name} name={name} className={`focus:bg-teal-50 border border-teal-700 focus:border-teal-800 focus:text-teal-900 px-3 py-2 rounded-sm w-[100%] outline-none peer ${restClass}`} placeholder={placeHolder} autoFocus {...rest}/>
             <label htmlFor={name} className="block mb-1 text-sm font-medium text-teal-700 peer-focus:text-black">{label}</label>
         </div>
     )

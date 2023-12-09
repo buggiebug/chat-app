@@ -25,7 +25,14 @@ body {
   }
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
+  width: 0px;
+} */
+
+#messageDrops::-webkit-scrollbar{
+  width: 0px;
+}
+#contactInfoModel::-webkit-scrollbar{
   width: 0px;
 }
 

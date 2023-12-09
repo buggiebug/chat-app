@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect, useState} from "react";
 import { ChatHook } from "../../hooks/ChatsHook";
 import { UserHook } from "../../hooks/UserHook";
 import {IoIosNotificationsOutline} from 'react-icons/io'
@@ -6,7 +6,7 @@ import {CgProfile} from 'react-icons/cg'
 
 const UserGrid = ({ userData }) => {
 
-  const {openSelectedChat, selectedUserChatState, getAllOneToOneMessages, socket} = ChatHook();
+  const {openSelectedChat, selectedUserChatState, getAllOneToOneMessages, socket, notificationState} = ChatHook();
   const {myInfoState} = UserHook();
 
   const openChat = async(chat)=>{
@@ -19,6 +19,18 @@ const UserGrid = ({ userData }) => {
       getAllOneToOneMessages(chat._id)
     }
   }
+
+  // Show notification...
+  const [totalNotificationState,setTotalNotificationState] = useState(0);
+  useEffect(()=>{
+    for(let i=0;i<notificationState?.length;i++){
+      if(userData?._id===notificationState[i]?.chatId?._id)
+      {
+        setTotalNotificationState(totalNotificationState+1);
+      }
+    }
+    // eslint-disable-next-line
+  },[notificationState.length])
 
   return (
     <>
@@ -53,10 +65,14 @@ const UserGrid = ({ userData }) => {
               </div>
             </div>
             <div className="relative top-1">
-              <p className="text-xl flex justify-center items-center">
-                <IoIosNotificationsOutline/>
-                <span className="text-[10px] relative right-[15px] -top-[1px]"> </span> {/*Show notification count...*/}
-              </p>
+              {
+                totalNotificationState > 0 && <>
+                  <p className="text-xl flex justify-center items-center">
+                    <span className="text-4xl"><IoIosNotificationsOutline/></span>
+                    <span className="text-[10px] relative right-[23px] -top-[1px]">{totalNotificationState}</span>
+                  </p>
+                </>
+              }
             </div>
           </div>
         </div>

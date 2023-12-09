@@ -44,8 +44,12 @@ function Home() {
   const [isTypingState,setIsTypingState] = useState(false);
 
   useEffect(()=>{
+
+    // Remove profile picture from the object
+    const extractData = {...myInfoState};
+    delete extractData?.profilePicture;
     //  Connect Socket to the chat...
-    socket.emit("setup",myInfoState);
+    socket.emit("setup",extractData);
     socket.on("connected",()=>setSocketConnectedState(true));
     socket.on("typing",()=>setIsTypingState(true));
     socket.on("stopTyping",()=>setIsTypingState(false));

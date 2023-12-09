@@ -43,7 +43,7 @@ const MyProfile = ({changeProfileView}) => {
         <div className='flex flex-col justify-center items-center mt-10'>
             <div className='w-full flex flex-col justify-center'>
                 <div className='flex justify-end mr-5 text-sm text-gray-300'>
-                    <input type="file" ref={refBrowseFiles} accept='image/*' name='avatar' onChange={onFileChange} className='hidden'/>
+                    <input type="file" ref={refBrowseFiles} accept='image/*'  name='avatar' onChange={onFileChange} className='hidden'/>
                     <button onClick={closeProfile} className='cursor-pointer text-2xl text-white' title='close'><MdOutlineCloseFullscreen/></button>
                 </div>
                 <div className='flex justify-center'>

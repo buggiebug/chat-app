@@ -6,7 +6,7 @@ import {
   getUser,
   uploadProfile,
   searchUser,
-  blockSingleUser,
+  blockUnblockUserApi,
 } from "../api/UserApi";
 import { toast } from "react-toastify";
 
@@ -17,6 +17,15 @@ function UserContext(props) {
     loading: false,
     loadingPath: "",
   });
+
+
+  //  Prompt Message...
+  const [promptDataState,setPromptDataState] = useState({title:"",desc:""});
+  const [confirmState,setConfirmState] = useState(false);
+  const promptMessageCall = (title,desc)=>{
+    setPromptDataState({title:title,desc:desc});
+  }
+
   const [myInfoState, setMyInfoState] = useState([]);
   const [searchedUsersState, setSearchedUsersState] = useState([]);
 
@@ -103,12 +112,13 @@ function UserContext(props) {
   };
 
   //  Block single user...
-  const blockSingleUserById = async (id) => {
+  const blockUnblockUser = async (state,data) => {
     setLoadingState({ loading: true, loadingPath: "block_user" });
-    const res = await blockSingleUser(id);
+    const res = await blockUnblockUserApi(state,data);
     if (res.success) {
       setLoadingState({ loading: false, loadingPath: "" });
       toast.info(res.message);
+      getUserInfo();
       return true;
     }
     toast.warn(res.message);
@@ -122,6 +132,11 @@ function UserContext(props) {
     <CreateUserContext.Provider
       value={{
         loadingState,
+        promptDataState,
+        setPromptDataState,
+        confirmState,
+        setConfirmState,
+        promptMessageCall,
         createAccount,
         loginSubmit,
         logoutSubmit,
@@ -132,7 +147,7 @@ function UserContext(props) {
         setSearchUserKeywordState,
         searchUserByNameEmail,
         searchedUsersState,
-        blockSingleUserById
+        blockUnblockUser
       }}
     >
       {props.children}

@@ -11,7 +11,7 @@ exports.isAuthenticatedUser = catchAsyncError(async (req,res,next)=>{
     if(!userawthtoken)
         return next(new ErrorHandler("Login is required.",401));
     const isValidToken = await jwt.verify(userawthtoken,process.env.JWT_SECRET);
-    const user = await UserModel.findById(isValidToken.id)
+    const user = await UserModel.findById(isValidToken.id).select("+blockedUsers")
     if(!user)
         return next(new ErrorHandler("Invalid token, user not found.",401));
     else if(!user.isVerifiedUser)

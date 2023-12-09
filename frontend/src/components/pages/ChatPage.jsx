@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChatHook } from "../../hooks/ChatsHook";
 import {AiOutlineMore,AiOutlineArrowLeft,AiOutlineLoading3Quarters} from "react-icons/ai"
 import {RiSendPlaneFill} from "react-icons/ri"
@@ -10,13 +10,21 @@ import InputBox from "../form_inputs/InputBox";
 import Messages from "./Messages";
 import ContactInfoModel from "./ContactInfoModel";
 import { UserHook } from "../../hooks/UserHook";
-import CustomPrompt from "../Models/CustomPrompt";
 
 const ChatPage = ({soc}) => {
   const {socketConnectedState,typingState,isTypingState,setTypingState} = soc;
 
-  const {socket, loadingState, openSelectedChat, selectedChatState, sendMessage_C, deleteAllMessagesFromChat, notificationState} = ChatHook();
-  const {myInfoState,blockSingleUserById} = UserHook();
+  const {socket, loadingState, openSelectedChat, selectedChatState, sendMessage_C, deleteAllMessagesFromChat} = ChatHook();
+  const {confirmState,setConfirmState, promptMessageCall, myInfoState,blockUnblockUser} = UserHook();
+
+  //  Selected user...
+  const [selectedUser,setSelectedUser] = useState({});
+  const [promptDataState,setPromptDataState] = useState({for:"",blockState:"",userId:"",chatId:""});
+  useEffect(()=>{
+    const selectedUserData = selectedChatState?.users?.filter(e=>e._id!==myInfoState._id);
+    setSelectedUser(selectedUserData && selectedUserData[0]);
+      // eslint-disable-next-line
+  },[selectedChatState]);
 
   //  Open Sub menu...
   const [subMenuState,setSubMenuState] = useState(false);
@@ -80,17 +88,34 @@ const ChatPage = ({soc}) => {
 
   //  Delete messages by using chat id...
   const clearChatHistory = async(chat)=>{
-    await deleteAllMessagesFromChat(chat._id);
+    promptMessageCall(`Delete chats`,`Do you want to delete all messages !`);
+    setPromptDataState({for:"clearChat",chatId:chat._id})
     setSubMenuState(false)
   }
   
   //  Block user by using user id...
-  const blockUser = async(selectUser)=>{
-    const selectedUser = selectUser?.users?.filter(e=>e._id!==myInfoState._id);
-    await blockSingleUserById(selectedUser[0]?._id)
-    setSubMenuState(false)
+  const blockUnblock = async(state,selectedChatState)=>{
+    // console.log(selectedUser)
+    const selectedUserData = selectedChatState?.users?.filter(e=>e._id!==myInfoState._id);
+    promptMessageCall(`Do you want to ${state} !`,`${String(state).toLocaleUpperCase()}, ${selectedUserData[0]?.name}`);
+    setPromptDataState({for:"blockUnblock",blockState:state,userId:selectedUserData[0]?._id,chatId:selectedChatState._id});
+    setSubMenuState(false);
   }
-
+  
+  useEffect(()=>{
+    if(confirmState && promptDataState.for==="blockUnblock" && promptDataState.userId){
+      const {blockState,...rest} = promptDataState;
+      blockUnblockUser(blockState,rest);
+      setConfirmState(false);
+      setPromptDataState({});
+    }
+    if(confirmState && promptDataState.for==="clearChat" && promptDataState.chatId){
+      deleteAllMessagesFromChat(promptDataState.chatId);
+      setConfirmState(false);
+      setPromptDataState({});
+    }
+    // eslint-disable-next-line
+  },[confirmState]);
 
   return (
     <>
@@ -132,10 +157,21 @@ const ChatPage = ({soc}) => {
                         <span className="text-lg"><MdOutlineDeleteSweep/></span>
                         <span className="relative left-2">Clear Chat</span>
                       </button>
-                      <button onClick={()=>{blockUser(selectedChatState)}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
-                        <span className=""><MdBlockFlipped/></span>
-                        <span className="relative left-3">Block</span>
-                      </button>
+
+                      {/* Block/Unblock button... */}
+                      {
+                        !myInfoState?.blockedUsers?.includes(selectedUser?._id)
+                        ?
+                        <button onClick={()=>{blockUnblock("block",selectedChatState)}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                          <span className=""><MdBlockFlipped/></span>
+                          <span className="relative left-3">Block</span>
+                        </button>
+                        :
+                        <button onClick={()=>{blockUnblock("unblock",selectedChatState)}} type="button" className="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-gray-200 rounded-t-lg hover:bg-gray-100 hover:text-blue-700">
+                          <span className=""><MdBlockFlipped/></span>
+                          <span className="relative left-3">Unblock</span>
+                        </button>
+                      }
                   </div>
                 </div>
               </div>
@@ -149,12 +185,10 @@ const ChatPage = ({soc}) => {
                 :<></>
               }
               <Messages/>
-              {/* // TODO */}
-              {/* <CustomPrompt info={{message:"Delete this"}}/>  */}
             </div>
             
             {/* Send messages... */}
-            <div className="bg-[#154f4dde]">
+            <div className="">
               <div className="sticky bottom-0 bg-transparent py-2 h-16 text-black flex justify-between items-center px-1">
                 <div className="w-full h-full overflow-hidden flex items-center">
                     <div className="w-full text-black font-semibold">

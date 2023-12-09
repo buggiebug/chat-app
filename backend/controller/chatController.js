@@ -236,8 +236,6 @@ exports.deleteAllChats = catchAsynError(async (req, res, next) => {
   const { chatIds } = req.body;
   const helper = new ObjHelper();
   try {
-    if (!(chatIds.length > 0))
-      return next(new ErrorHandler("No chat founds.", 401));
     if (
       chatIds
         .map((e) => {
@@ -246,6 +244,9 @@ exports.deleteAllChats = catchAsynError(async (req, res, next) => {
         .includes(false)
     )
       return next(new ErrorHandler("Invalid I'd.", 400));
+
+    if (!(chatIds.length > 0))
+      return next(new ErrorHandler("No chat founds.", 200));  
     else {
       await ChatModel.deleteMany({ _id: { $in: chatIds } });
       const remainingChats = await ChatModel.find({

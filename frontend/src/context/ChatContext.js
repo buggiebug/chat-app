@@ -20,7 +20,7 @@ function ChatContext({ children }) {
   const [selectedUserChatState, setSelectedUserChatState] = useState("");
   const [oneToOneMessagesState, setOneToOneMessagesState] = useState([]);
   const [notificationState, setNotificationState] = useState([]);
-  
+
   const getMyAllChats = async () => {
     setLoadingState({ loading: true, loadingPath: "allChats" });
     const res = await getAllChats();

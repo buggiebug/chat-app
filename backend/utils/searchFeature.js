@@ -14,8 +14,8 @@ module.exports = class SearchFeature {
         }
       : {};
     this.query = this.query
-      .find({ ...keyword, isVerifiedUser: true })
-      .find({ _id: { $ne: curUserId } })
+      .find({ ...keyword, isVerifiedUser: true, _id: { $ne: curUserId } })
+      .select("+blockedUsers")
       .select("-passwordToken");
     return this.query;
   }

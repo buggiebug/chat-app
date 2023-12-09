@@ -18,6 +18,11 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+      select: false,
+    },
     // groupAdminAll: [
     //   {
     //     type: mongoose.Schema.Types.ObjectId,

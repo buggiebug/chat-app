@@ -15,7 +15,7 @@ const ContactInfoModel = ({props}) => {
   
   return (
     <>
-    <div className='w-full lg:border-l-2 h-full overflow-y-scroll'>
+    <div className='w-full lg:border-l-2 h-full overflow-y-scroll' id='contactInfoModel'>
         <div className={`sticky top-0 bg-white min-h-[56px] h-14 text-black flex justify-between items-center px-3`}>
             <div className="w-full basis-full">
                 <div className="w-full flex justify-between text-black font-semibold items-center">
