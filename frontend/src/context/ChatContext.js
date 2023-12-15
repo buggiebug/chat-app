@@ -3,7 +3,7 @@ import { getAllChats, createOneToOneChat, getAllMessages, sendMessage, deleteAll
 import { toast } from "react-toastify";
 
 import { io } from "socket.io-client";
-const API = "http://localhost:8000"; //process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_BE_API;
 let socket;
 
 export const CreateChatContext = createContext();
