@@ -1,4 +1,11 @@
 require("dotenv").config({ path: "./config.env" });
+// Uncaught Exception Error [It will throw an error when it finds anything undefined & Shutdown the server] ...
+process.on("uncaughtException", (e) => {
+  console.info(`Error : ${e.message} \nShutting down the server...`);
+  process.exit(1);
+});
+
+
 //  ENV Files...
 const PORT = process.env.PORT;
 const HOST = process.env.HOST;
@@ -6,6 +13,8 @@ const DB_URL = process.env.DB_URL;
 const CLIENT_URL = process.env.CLIENT_URL;
 
 const express = require("express");
+const morgan = require('morgan')
+
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
@@ -20,12 +29,7 @@ app.use(
   })
 );
 app.use(cookieParser());
-
-// Uncaught Exception Error [It will throw an error when it finds anything undefined & Shutdown the server] ...
-process.on("uncaughtException", (e) => {
-  console.info(`Error : ${e.message} \nShutting down the server...`);
-  process.exit(1);
-});
+app.use(morgan(':url :method :status :req[header] :res[header]'));
 
 //  Connect with Database...
 const dbConnect = require("./database/dbConnect");

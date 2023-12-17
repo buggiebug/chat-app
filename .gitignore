@@ -11,6 +11,7 @@
 # dependencies
 /frontend/node_modules
 /frontend/dist
+/frontend/.env
 
 others
 test

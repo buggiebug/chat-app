@@ -80,10 +80,10 @@ userSchema.methods.getTempAuthToken = async function () {
   return token;
 };
 
-//  Get after logged in JWT token...
+//  Get after logged in JWT token for [24hrs]...
 userSchema.methods.getAuthToken = async function () {
   const token = await jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: Date.now() + 15 * 60 * 1000,
+    expiresIn: Date.now() + 24 * 60 * 60 * 1000,
   });
   return token;
 };

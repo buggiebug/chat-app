@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const ChatModel = require("../models/chatModel");
 
+const oneDayMilliseconds = 24 * 60 * 60 * 1000;
 //  Get file...
 const getFile = async(fileName)=>{
   if(fileName!==null){
@@ -78,7 +79,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
         });
         return res
           .status(200)
-          .cookie("tempToken", await user.getTempAuthToken())
+          .cookie("tempToken", await user.getTempAuthToken(), { samesecure: true, maxAge: 900000, httpOnly: true })
           .json({
             success: true,
             message: `An OTP has send to your email: ${email}`,
@@ -111,7 +112,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
       await isUser.save({ validateModifiedOnly: true });
       return res
         .status(200)
-        .cookie("tempToken", await isUser.getTempAuthToken())
+        .cookie("tempToken", await isUser.getTempAuthToken(), { samesecure: true, maxAge: 900000, httpOnly: true })
         .json({
           success: true,
           message: "OTP verified.",
@@ -159,7 +160,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
 
     return res
       .status(201)
-      .cookie("userawthtoken", await userData.getAuthToken())
+      .cookie("userawthtoken", await userData.getAuthToken(), { sameSite: 'None', maxAge: oneDayMilliseconds, httpOnly: true })
       .json({
         success: true,
         message: "Welcome to GapSap 😍",
@@ -191,7 +192,7 @@ exports.loginUser = catchAsynError(async (req, res, next) => {
 
   return res
     .status(200)
-    .cookie("userawthtoken", await user.getAuthToken())
+    .cookie("userawthtoken", await user.getAuthToken(),{ sameSite: 'None', maxAge: oneDayMilliseconds, httpOnly: true })
     .json({
       success: true,
       message: "Welcome back GapSap 😍",
