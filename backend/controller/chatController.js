@@ -8,16 +8,21 @@ const fs = require("fs");
 
 //  Get file data via using filename if available else return empty string...
 const getFile = async(fileName)=>{
+ try {
   if(fileName!==null){
     const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
     if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
       const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
       return profileData;
     }else{
-      return " ";
+      return "";
     }
   }
-  return " ";
+  return "";
+ } catch (error) {
+  console.log(error?.message);
+  return "";
+ }
 }
 
 //  It takes array of chats and then extract users info and update their profile path with buffer image...

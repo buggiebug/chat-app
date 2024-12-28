@@ -49,9 +49,9 @@ const MyProfile = ({changeProfileView}) => {
                 <div className='flex justify-center'>
                     <div onClick={loadPhoto} className='hover: w-28 h-28 flex justify-center items-center border-2 rounded-full overflow-hidden cursor-pointer'>
                         {
-                            myInfoState.profilePicture && myInfoState.profilePicture !== ' '
+                            myInfoState?.profilePicture && myInfoState?.profilePicture !== ""
                             ?
-                            <img src={`${profilePhotoState ? profilePhotoState : 'data:image/*;base64,' + myInfoState.profilePicture}`} alt="profile" />
+                            <img src={`${profilePhotoState ? profilePhotoState : 'data:image/*;base64,' + myInfoState?.profilePicture}`} alt="profile" />
                             :
                             <span className='text-3xl'><CgProfile/></span>
                         }

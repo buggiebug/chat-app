@@ -11,10 +11,19 @@ const SearchUser = ({someRef}) => {
 
   const {closeRef,viewCreateGroupState} = someRef;  
 
-  const searchUsersHandleChange = ({ target }) => {
-    setSearchUserKeywordState(target.value);
-    searchUserByNameEmail(target.value)
+  const debounce = (fn, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        fn(...args);
+      }, delay);
+    };
   };
+  const searchUsersHandleChange = debounce(({ target }) => {
+    setSearchUserKeywordState(target.value);
+    searchUserByNameEmail(target.value);
+  }, 800);
 
   const [searchButtonState, setSearchButtonState] = useState(true);
   const [backButtonState, setBackButtonState] = useState(false);

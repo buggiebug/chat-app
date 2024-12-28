@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./config.env" });
+require("dotenv").config();
 // Uncaught Exception Error [It will throw an error when it finds anything undefined & Shutdown the server] ...
 process.on("uncaughtException", (e) => {
   console.info(`Error : ${e.message} \nShutting down the server...`);
@@ -33,7 +33,12 @@ app.use(morgan(':url :method :status :req[header] :res[header]'));
 
 //  Connect with Database...
 const dbConnect = require("./database/dbConnect");
-dbConnect(DB_URL);
+try {
+  dbConnect(DB_URL);
+} catch (error) {
+  console.log(error);
+  dbConnect(DB_URL);
+}
 
 // Routes...
 app.get("/", (req, res) => {

@@ -1,17 +1,13 @@
-
-#!  Backend
-# dependencies
+# Backend
 /backend/node_modules
 
-/backend/config.env
+/backend/.env
 /backend/uploads
 
 
-#!  Frontend
-# dependencies
+# Frontend
 /frontend/node_modules
 /frontend/dist
 /frontend/.env
 
-others
 test

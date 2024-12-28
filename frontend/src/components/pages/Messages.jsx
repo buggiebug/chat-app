@@ -70,7 +70,7 @@ const Messages = () => {
                           <div className='flex items-start justify-center w-fit max-w-[90%] md:max-w-[50%]'>
                             {/* This is for image... */}
                             {e.sender._id!==myInfoState._id && selectedChatState.isGroupChat===false &&
-                              selectedChatState.users?.[1]?.profilePicture!==" "?
+                              selectedChatState.users?.[1]?.profilePicture!==""?
                               selectedChatState.users?.[1]._id=== e.sender?._id?
                               <img src={`data:image/*;base64, ${selectedChatState.users?.[1]?.profilePicture}`} alt={`img`} className='min-w-[30px] min-h-[30px] w-[30px] h-[30px] rounded-full'/>
                               :<img src={`data:image/*;base64, ${selectedChatState.users?.[0]?.profilePicture}`} alt={`img`} className='min-w-[30px] min-h-[30px] w-[30px] h-[30px] rounded-full'/>

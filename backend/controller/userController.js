@@ -10,18 +10,27 @@ const path = require("path");
 const ChatModel = require("../models/chatModel");
 
 const oneDayMilliseconds = 24 * 60 * 60 * 1000;
+const cookieOptions = {maxAge: oneDayMilliseconds, httpOnly: true };
+
 //  Get file...
 const getFile = async(fileName)=>{
-  if(fileName!==null){
-    const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
-    if(String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== "{}" && fileName !== null && String(profilePath.split("\\").at(profilePath.split("\\").length-1)) !== " "){
-      const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
-      return profileData;
-    }else{
-      return " ";
+  try {
+    if(fileName!==null){
+      const profilePath = await path.join(__dirname,"../uploads", String(fileName));  
+      const filePath = String(profilePath).split("\\");
+      const ind = filePath.indexOf("uploads");
+      if(filePath[ind+1]){
+        const profileData = (await fs.promises.readFile(profilePath)).toString("base64");
+        return profileData;
+      }else{
+        return "";
+      }
     }
+    return "";
+  } catch (error) {
+    console.log(error?.message);
+    return "";
   }
-  return " ";
 }
 
 //  Create a new user...
@@ -79,7 +88,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
         });
         return res
           .status(200)
-          .cookie("tempToken", await user.getTempAuthToken(), { samesecure: true, maxAge: 900000, httpOnly: true })
+          .cookie("tempToken", await user.getTempAuthToken(), cookieOptions)
           .json({
             success: true,
             message: `An OTP has send to your email: ${email}`,
@@ -112,7 +121,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
       await isUser.save({ validateModifiedOnly: true });
       return res
         .status(200)
-        .cookie("tempToken", await isUser.getTempAuthToken(), { samesecure: true, maxAge: 900000, httpOnly: true })
+        .cookie("tempToken", await isUser.getTempAuthToken(), cookieOptions)
         .json({
           success: true,
           message: "OTP verified.",
@@ -160,7 +169,7 @@ exports.createNewUser = catchAsynError(async (req, res, next) => {
 
     return res
       .status(201)
-      .cookie("userawthtoken", await userData.getAuthToken(), { sameSite: 'None', maxAge: oneDayMilliseconds, httpOnly: true })
+      .cookie("userawthtoken", await userData.getAuthToken(), cookieOptions)
       .json({
         success: true,
         message: "Welcome to GapSap 😍",
@@ -192,7 +201,7 @@ exports.loginUser = catchAsynError(async (req, res, next) => {
 
   return res
     .status(200)
-    .cookie("userawthtoken", await user.getAuthToken(),{ sameSite: 'None', maxAge: oneDayMilliseconds, httpOnly: true })
+    .cookie("userawthtoken", await user.getAuthToken(),cookieOptions)
     .json({
       success: true,
       message: "Welcome back GapSap 😍",
