@@ -25,7 +25,7 @@ app.use(
   cors({
     credentials: true,
     maxAge: Date.now() + 24 * 60 * 60 * 1000,
-    origin: CLIENT_URL,
+    origin: [CLIENT_URL, "http://localhost:3000"],
   })
 );
 app.use(cookieParser());
@@ -43,14 +43,15 @@ try {
 // Routes...
 app.get("/", (req, res) => {
   return res
-    .status(200)
-    .json({ success: true, message: "Welcome to Chat App API." });
+    .status(200).send("ok")
 });
 
 // Users...
 app.use("/api", require("./routes/userRoutes"));
 app.use("/api/chats", require("./routes/chatRoutes"));
 app.use("/api/chat/message", require("./routes/messageRoutes"));
+const {ownApiCallForRender} = require("./cronJob/ownApiCall");
+ownApiCallForRender();
 
 const server = app.listen(PORT, () => {
   console.log(`server running at http://${HOST}:${PORT}`);
