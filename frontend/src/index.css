@@ -14,7 +14,8 @@ body {
 
 @media screen and (min-width: 1600px){
   body{
-    background-color: #154f4dde;
+    /* background-color: #154f4dde; */
+    background-color: #ab2121b0;
   }
   #whenIOpeninLargeScreen{
     width: 80vw;

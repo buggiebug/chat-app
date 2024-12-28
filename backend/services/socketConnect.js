@@ -6,7 +6,7 @@ module.exports = function connectSoacket(serverInfo) {
   const io = new Server(serverInfo, {
     pingTimeout: 60*1000,
     cors: {
-      origin: CLIENT_URL,
+      origin: [CLIENT_URL, "http://localhost:3000"],
     },
   });
 

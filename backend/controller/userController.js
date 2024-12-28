@@ -10,7 +10,12 @@ const path = require("path");
 const ChatModel = require("../models/chatModel");
 
 const oneDayMilliseconds = 24 * 60 * 60 * 1000;
-const cookieOptions = {maxAge: oneDayMilliseconds, httpOnly: true };
+const cookieOptions = {
+  maxAge: oneDayMilliseconds, 
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+ };
 
 //  Get file...
 const getFile = async(fileName)=>{

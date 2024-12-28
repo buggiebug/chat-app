@@ -31,10 +31,10 @@ const ContactInfoModel = ({props}) => {
                 <div className="w-20 h-20 flex justify-center items-center border-2 rounded-full overflow-hidden">
                     {
                         !selectedChatState.isGroupChat ? myInfoState._id !== selectedChatState.users[1]._id ?
-                        (selectedChatState.users[1]?.profilePicture && selectedChatState.users[1]?.profilePicture !== ' ')
+                        (selectedChatState.users[1]?.profilePicture && selectedChatState.users[1]?.profilePicture !== "")
                         ?   <img src={`data:image/*;base64, ${selectedChatState.users[1]?.profilePicture}`} alt={`img`}/>
                         :   <span className='text-3xl'><CgProfile/></span>
-                        :   selectedChatState.users[0]?.profilePicture && selectedChatState.users[0]?.profilePicture !== ' '
+                        :   selectedChatState.users[0]?.profilePicture && selectedChatState.users[0]?.profilePicture !== ""
                         ?   <img src={`data:image/*;base64, ${selectedChatState.users[0]?.profilePicture}`} alt={`img`} />
                         :   <span className='text-3xl'><CgProfile/></span>
                         :   <span className='text-3xl relative -top-[2px] left-[1px]'>{String(selectedChatState.chatName)[0]}</span>
@@ -52,7 +52,7 @@ const ContactInfoModel = ({props}) => {
                                 <div className='flex'>
                                     <div className="w-10 h-10 flex justify-center items-center border-2 rounded-full overflow-hidden">
                                         {
-                                            e?.profilePicture && e?.profilePicture !== ' ' && e?.profilePicture!==undefined && e?.profilePicture!==null? 
+                                            e?.profilePicture && e?.profilePicture !== "" && e?.profilePicture!==undefined && e?.profilePicture!==null? 
                                             <img src={`data:image/*;base64, ${e?.profilePicture}`} alt={`lol`}/>
                                             : <span className='text-3xl'><CgProfile/></span>
                                         }

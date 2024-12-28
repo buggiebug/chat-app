@@ -52,7 +52,7 @@ function Login(props) {
     <div className="w-full grid place-items-center">
         {/* ! Heading... */}
         <div className="my-5 text-xl md:w-[60%] w-full">
-          <h1 className="uppercase text-gray-500">Login to your account</h1>
+          <h1 className="uppercase text-black">Login to your account</h1>
         </div>
 
         {/* ! Basic Data... */}
@@ -65,7 +65,7 @@ function Login(props) {
                 </div>
             </form>
 
-            <p className="mt-3">Create new account <span onClick={()=>{loginSignupState("signupShow")}} className="underline text-blue-600 cursor-pointer">Sign Up</span></p>
+            <p className="mt-3">Create new account <span onClick={()=>{loginSignupState("signupShow")}} className="underline text-blue-900 cursor-pointer">Sign Up</span></p>
         </div>
 
     </div>

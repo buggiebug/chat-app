@@ -129,7 +129,7 @@ const Sidebar = ({userAwth}) => {
         <div className="flex flex-col justify-center items-center">
           <div className='w-12 h-12 flex justify-center items-center border-2 rounded-full overflow-hidden'>
             {
-              user.profilePicture && user.profilePicture !== ' '
+              user.profilePicture && user.profilePicture !== ""
               ?   <img src={`data:image/*;base64, ${user.profilePicture}`} alt="profile" />
               :   <span className='text-3xl'><CgProfile/></span>
             }

@@ -8,8 +8,9 @@ class MailSender {
   async validateEmailAddress(receiverMail)  // Todo: Activate validate method...
   {
     let {valid} =  await validate(String(receiverMail).trim());
-    return valid;
-    // return true;
+    console.log(valid);
+    // return valid;
+    return true;
   }
 
 
